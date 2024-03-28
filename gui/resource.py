@@ -9,21 +9,15 @@ class Resource:
         self.color = color
         self.rectSize = radius * 2
         self.rect = pygame.Rect(self.pixel_pos[0], self.pixel_pos[1], self.rectSize, self.rectSize)
-
+        self.rect.center = (self.pixel_pos[0] - radius -1.1, self.pixel_pos[1] - radius -1.1)
     def update(self):
-        # delta_x = self.speed * math.cos(self.angle)
-        # delta_y = self.speed * math.sin(self.angle)
-        # self.rect = self.rect.move(delta_x, delta_y)
-        #
-        # if self.rect.right >= self.screen.get_width() or self.rect.left <= 0:
-        #     self.angle = math.pi - self.angle
-        #
-        # if self.rect.top <= 0 or self.rect.bottom >= self.screen.get_height():
-        #     self.angle = -self.angle
         pass
 
     def draw(self):
         pygame.draw.circle(self.screen, self.color, self.rect.center, int(self.rect.width / 2))
+
+    def __repr__(self):
+        return f'Resource - x: {self.pixel_pos[0]} | y: {self.pixel_pos[1]}'
 
 
 

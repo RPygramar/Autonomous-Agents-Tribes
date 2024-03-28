@@ -1,0 +1,35 @@
+{
+    "#normal-label": {
+      "colours": {
+        "normal_text": "#000000"
+      },
+      "font": {
+        "size": 14
+      }
+    },
+    "label": {
+      "colours": {
+        "normal_text": "#FFFFFF"
+      },
+      "font": {
+        "size": 14
+      }
+    },
+    "button": {
+      "colours": {
+        "normal_text": "#FFFFFF",
+        "normal_bg": "#222831",
+        "hovered_text": "#EEEEEE",
+        "hovered_border": "#101114",
+        "hovered_bg": "#76ABAE"
+      },
+      "font": {
+        "size": 14
+      }
+    },
+    "misc":
+    {
+        "border_width": "50"
+        
+    }
+  }
