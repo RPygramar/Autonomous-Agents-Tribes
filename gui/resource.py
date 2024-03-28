@@ -2,7 +2,7 @@ import pygame
 import math
 
 
-class Ball:
+class Resource:
     def __init__(self, screen, grid, current_pos, color, radius):
         self.pixel_pos = (grid.get_cell_x(current_pos[0]), grid.get_cell_y(current_pos[1]))
         self.screen = screen

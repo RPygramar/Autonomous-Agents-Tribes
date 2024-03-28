@@ -30,7 +30,6 @@ class Grid:
                 if self.entity_grid[i][j] != 0 and self.entity_grid[i][j] != 2:
                     self.map_object.draw_object(self.__gui.get_screen(), self.get_cell_x(j), self.get_cell_y(i), self.__cell_size, self.entity_grid[i][j])
 
-    # METODO DO RPYGRAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAR
     def check_move(self, current_pos, new_pos, agent):
         if self.entity_grid[new_pos[1]][new_pos[0]] == 0:
             self.entity_grid[current_pos[1]][current_pos[0]] = 0

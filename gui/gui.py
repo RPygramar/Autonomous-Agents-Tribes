@@ -12,7 +12,7 @@ class GUI:
         self.__screen = pygame.display.set_mode((self.__screen_width, self.__screen_height))
         self.bg_color = (201, 193, 181)
         self.clock = pygame.time.Clock()
-        pygame.display.set_caption("CS-AI")
+        pygame.display.set_caption("Autonomous-Agents-Tribes")
 
     def get_cell_size(self):
         return self.__cell_size

@@ -2,8 +2,8 @@ from gui.ball import Ball
 
 
 class Agent(Ball):
-    def __init__(self, screen, grid, current_pos, color, radius, speed, angle):
-        super().__init__(screen, grid, current_pos, color, radius, speed, angle)
+    def __init__(self, screen, grid, current_pos, color, radius):
+        super().__init__(screen, grid, current_pos, color, radius)
         self.current_pos = current_pos
         self.new_pos = current_pos
         self.screen = screen
