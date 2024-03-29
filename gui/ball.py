@@ -11,15 +11,6 @@ class Ball:
         self.rect = pygame.Rect(self.pixel_pos[0], self.pixel_pos[1], self.rectSize, self.rectSize)
 
     def update(self):
-        # delta_x = self.speed * math.cos(self.angle)
-        # delta_y = self.speed * math.sin(self.angle)
-        # self.rect = self.rect.move(delta_x, delta_y)
-        #
-        # if self.rect.right >= self.screen.get_width() or self.rect.left <= 0:
-        #     self.angle = math.pi - self.angle
-        #
-        # if self.rect.top <= 0 or self.rect.bottom >= self.screen.get_height():
-        #     self.angle = -self.angle
         pass
 
     def draw(self):

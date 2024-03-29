@@ -4,6 +4,7 @@ import pygame_gui
 class GUI:
 
     def __init__(self):
+        '''Inicializa o pygame'''
         pygame.init()
         pygame.display.init()
         self.__cell_size = 10
