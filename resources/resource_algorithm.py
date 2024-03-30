@@ -1,7 +1,7 @@
 from gui.resource import Resource
 
 
-class Agent(Resource):
+class Resource_Algo(Resource):
     def __init__(self, screen, grid, current_pos, color, radius):
         super().__init__(screen, grid, current_pos, color, radius)
         self.current_pos = current_pos

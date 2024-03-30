@@ -95,6 +95,8 @@ class Game:
 
         self.update_pos()
 
+        self.check_collisions()
+
     def update_start_menu(self):
         '''Desenha os elementos do Menu Inicial'''
         self.gui.get_manager().draw_ui(self.gui.get_screen())
@@ -117,3 +119,8 @@ class Game:
             self.resources.append(Resource(self.gui.get_screen(), self.grid, random_tuple, color=(0,128,0), radius=3)) # Popula-se a lista resources com as shapes "resource"
             
         del positions # elimina-se a lista para não ocupar memória
+
+    def check_collisions(self):
+        for resourse in self.resources:
+            if self.agent.rect.colliderect(resourse.rect):
+                resourse.set_drawing(False)

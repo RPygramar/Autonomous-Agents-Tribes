@@ -41,7 +41,7 @@ class GUI:
     def draw_slider_resources(self):
         self.slider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect(((self.get_screen_width()//3),(self.get_screen_height()//2)),(300, 20)),
                                                value_range=(0,4000),
-                                               start_value=1000,
+                                               start_value=1,
                                                manager=self.__manager
                                                )
         
