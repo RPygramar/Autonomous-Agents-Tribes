@@ -3,3 +3,4 @@ spade==3.3.2
 python-dotenv==1.0.1
 aioconsole==0.7.0
 pygame-gui==0.6.9
+pygame-matplotlib==0.4

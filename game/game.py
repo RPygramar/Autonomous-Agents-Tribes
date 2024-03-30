@@ -1,36 +1,48 @@
+from multiprocessing import Process, Queue
 import pygame
 import pygame_gui
 import random
+import psutil
 
 from agents.agent import Agent
 from resources.resource_algorithm import Resource
 from game.grid import Grid
 from gui.gui import GUI
 
+from gui.plots import Plot  
+
 
 class Game:
     def __init__(self):
-
+        
         # Init interface
         self.gui = GUI()
+        self.queue = Queue()
         self.grid = Grid(self.gui)
         self.grid.load_map()
-
 
         # Init main menu
         self.gui.draw_button()
         self.gui.draw_slider_resources()
 
-
         # TEST AGENT
         self.agent = Agent(self.gui.get_screen(), self.grid, current_pos=(1, 3), color=(100, 100, 100), radius=5)
-
 
         # Init variables for game running
         self.simulating = False
         self.game_running = True
 
-        
+        # Multi process (Plot)
+        self.p = None
+
+        # Resource counter
+        self.total_resources = 0
+
+    def start_matplotlib_process(self):
+        self.p = Process(target=Plot().main, args=(self.queue,))
+        self.p.start()
+
+
     # MÉTODO QUE MANIPULA O JOGO
     def run(self):
         while self.game_running:
@@ -42,6 +54,8 @@ class Game:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.game_running = False
+                        self.p.terminate()
+                        
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_w:
                             self.agent.move_up()
@@ -51,11 +65,15 @@ class Game:
                             self.agent.move_right()
                         elif event.key == pygame.K_a:
                             self.agent.move_left()
+
                 # Fill background color
                 self.gui.get_screen().fill(self.gui.bg_color)    
 
                 # Update aos componentes da simulação
                 self.update()
+
+                # Enviar informação para o gráfico
+                self.queue.put(self.total_resources)
             
             # Screen do Main Menu
             else:
@@ -70,17 +88,25 @@ class Game:
                         if event.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                             # Update ao valor do slider do Main Menu
                             self.gui.value_resources.set_text(f"Value: {event.value:.0f}")
+                            
                         
                         # Verifica se o botão START foi clicado e se sim inicia a simulação
                         if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                             if event.ui_element == self.gui.start_button:
+                                self.total_resources = int(self.gui.slider.current_value)
                                 self.simulating = True
                                 self.start_game()
+                                self.start_matplotlib_process()
+                                
+                                
+                                
 
                 self.gui.get_screen().fill((49, 54, 63))
                 self.update_start_menu()
                 
             
+            
+
             # Display
             self.gui.get_manager().update(time_delta)
             pygame.display.flip()
@@ -96,6 +122,10 @@ class Game:
         self.update_pos()
 
         self.check_collisions()
+
+        #self.plot_resources.create_plot()
+
+        #self.plot_resources.update_data(random.randint(0,89))
 
     def update_start_menu(self):
         '''Desenha os elementos do Menu Inicial'''
@@ -116,11 +146,12 @@ class Game:
                 random_tuple = (random.randint(0,89),random.randint(0,89))
             positions.append(random_tuple)
     
-            self.resources.append(Resource(self.gui.get_screen(), self.grid, random_tuple, color=(0,128,0), radius=3)) # Popula-se a lista resources com as shapes "resource"
+            self.resources.append(Resource(self.gui.get_screen(), self.grid, random_tuple, color=(0,128,0))) # Popula-se a lista resources com as shapes "resource"
             
         del positions # elimina-se a lista para não ocupar memória
 
     def check_collisions(self):
         for resourse in self.resources:
             if self.agent.rect.colliderect(resourse.rect):
-                resourse.set_drawing(False)
+                self.resources.remove(resourse)
+                self.total_resources -= 1
