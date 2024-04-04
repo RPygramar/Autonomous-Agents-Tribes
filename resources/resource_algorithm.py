@@ -2,8 +2,8 @@ from gui.resource import Resource
 
 
 class Resource_Algo(Resource):
-    def __init__(self, screen, grid, current_pos, color, radius):
-        super().__init__(screen, grid, current_pos, color, radius)
+    def __init__(self, screen, grid, current_pos, color):
+        super().__init__(screen, grid, current_pos, color)
         self.current_pos = current_pos
         self.new_pos = current_pos
         self.screen = screen

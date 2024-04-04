@@ -2,10 +2,13 @@ from multiprocessing import Process, Queue
 import pygame
 import pygame_gui
 import random
-import psutil
 
 from agents.agent import Agent
-from resources.resource_algorithm import Resource
+from resources.resource_algorithm import Resource_Algo as Resource
+from game.tribe import Tribe
+from houses.house_algorithm import House_Algo as House 
+
+
 from game.grid import Grid
 from gui.gui import GUI
 
@@ -25,9 +28,6 @@ class Game:
         self.gui.draw_button()
         self.gui.draw_slider_resources()
 
-        # TEST AGENT
-        self.agent = Agent(self.gui.get_screen(), self.grid, current_pos=(1, 3), color=(100, 100, 100), radius=5)
-
         # Init variables for game running
         self.simulating = False
         self.game_running = True
@@ -37,6 +37,15 @@ class Game:
 
         # Resource counter
         self.total_resources = 0
+
+        # Agent List
+        self.all_agents_list = []
+
+        # TEST AGENT
+        self.agent = Agent(self.gui.get_screen(), self.grid, current_pos=(1, 3), color=(100, 100, 100), radius=5, tribe_name='grey')
+
+        # Rules
+        self.house_price = 0 # Resources needed to build a house
 
     def start_matplotlib_process(self):
         self.p = Process(target=Plot().main, args=(self.queue,))
@@ -65,6 +74,14 @@ class Game:
                             self.agent.move_right()
                         elif event.key == pygame.K_a:
                             self.agent.move_left()
+                        elif event.key == pygame.K_SPACE:
+                            self.agent.take_damage()
+                            print(self.agent.health)
+                        elif event.key == pygame.K_h:
+                            if self.agent.get_resources() >= self.house_price and not self.is_house_in_position(self.agent.get_current_pos()):
+                                self.all_houses_list.append(House(self.gui.get_screen(), self.grid, self.agent.get_current_pos(), self.agent.color, tribe=self.agent.get_tribe_name()))
+                                self.agent.add_resources(-self.house_price)
+                                print(self.all_houses_list)
 
                 # Fill background color
                 self.gui.get_screen().fill(self.gui.bg_color)    
@@ -97,16 +114,10 @@ class Game:
                                 self.simulating = True
                                 self.start_game()
                                 self.start_matplotlib_process()
-                                
-                                
-                                
-
+                               
                 self.gui.get_screen().fill((49, 54, 63))
                 self.update_start_menu()
                 
-            
-            
-
             # Display
             self.gui.get_manager().update(time_delta)
             pygame.display.flip()
@@ -117,22 +128,22 @@ class Game:
         for resource in self.resources: # Desenhar todos os resources dentro da lista criada após o start
             resource.draw()
 
-        self.agent.draw()
+        for agent in self.all_agents_list:
+            agent.draw()
+
+        for house in self.all_houses_list:
+            house.draw()
 
         self.update_pos()
 
         self.check_collisions()
-
-        #self.plot_resources.create_plot()
-
-        #self.plot_resources.update_data(random.randint(0,89))
 
     def update_start_menu(self):
         '''Desenha os elementos do Menu Inicial'''
         self.gui.get_manager().draw_ui(self.gui.get_screen())
 
     def update_pos(self):
-        self.agent.rect.x, self.agent.rect.y = self.grid.check_move(self.agent.current_pos, self.agent.new_pos, self.agent)
+        self.agent.rect.x, self.agent.rect.y = self.grid.check_move(self.agent.get_current_pos(), self.agent.new_pos, self.agent)
 
     def start_game(self):
         '''Inicia o jogo com os recursos, tribos e tempo de regeneração dos recursos de acordo com o escolhido pelo utilizador'''
@@ -150,8 +161,29 @@ class Game:
             
         del positions # elimina-se a lista para não ocupar memória
 
+        self.tribes = {'grey': Tribe(tribe_name='grey')}
+
+        self.tribes['grey'].add_agent(self.agent)
+
+        self.all_agents_list.append(self.agent)
+
+        self.all_houses_list = []
+
+        print(self.tribes['grey'])
+
     def check_collisions(self):
-        for resourse in self.resources:
-            if self.agent.rect.colliderect(resourse.rect):
-                self.resources.remove(resourse)
-                self.total_resources -= 1
+        for agent in self.all_agents_list:
+            for resourse in self.resources:
+                if agent.rect.colliderect(resourse.rect):
+                    self.resources.remove(resourse)
+                    self.total_resources -= 1
+                    agent.add_resources(1)
+                    print(self.tribes['grey'].get_total_resources())
+                    break
+
+    def is_house_in_position(self, wanted_position) -> bool:
+        for h in self.all_houses_list:
+            if h.get_current_pos() == wanted_position:
+                return True
+        return False
+                    
