@@ -2,8 +2,9 @@ import pygame
 import pygame_gui
 
 class Tribe:
-    def __init__(self,tribe_name : str, tribe_agents = []) -> None:
+    def __init__(self,tribe_name : str, tribe_agents : list = [], tribe_houses : list = []) -> None:
         self.__tribe_agents = tribe_agents
+        self.__houses = tribe_houses
         self.__tribe_name = tribe_name
 
     def get_tribe(self) -> list:
@@ -29,6 +30,12 @@ class Tribe:
     
     def set_tribe_name(self, name: str) -> None:
         self.__tribe_name = name
+
+    def get_houses(self) -> list:
+        return self.__houses
+
+    def add_house(self, house: object) -> None:
+        self.__houses.append(house)
 
     def __repr__(self):
         return f'Tribo: {self.__tribe_name} - {self.get_tribe()}'

@@ -1,7 +1,7 @@
 from gui.house import House
 
 class House_Algo(House):
-    def __init__(self, screen, grid, current_pos, color, tribe):
+    def __init__(self, screen, grid, current_pos, color, tribe = 'grey'):
         super().__init__(screen, grid, current_pos, color)
         self.__current_pos = current_pos
         self.new_pos = current_pos

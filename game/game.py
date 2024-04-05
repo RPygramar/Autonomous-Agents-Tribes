@@ -79,9 +79,12 @@ class Game:
                             print(self.agent.health)
                         elif event.key == pygame.K_h:
                             if self.agent.get_resources() >= self.house_price and not self.is_house_in_position(self.agent.get_current_pos()):
-                                self.all_houses_list.append(House(self.gui.get_screen(), self.grid, self.agent.get_current_pos(), self.agent.color, tribe=self.agent.get_tribe_name()))
+                                house = House(self.gui.get_screen(), self.grid, self.agent.get_current_pos(), self.agent.color) #tribe=self.agent.get_tribe_name())
+                                self.all_houses_list.append(house)
                                 self.agent.add_resources(-self.house_price)
                                 print(self.all_houses_list)
+                                self.add_house_to_tribe('grey', house)
+                                print(self.tribes['grey'].get_houses())
 
                 # Fill background color
                 self.gui.get_screen().fill(self.gui.bg_color)    
@@ -125,14 +128,17 @@ class Game:
     def update(self):
         '''Desenha os diferentes objetos para a simulação'''
         
+        for house in self.all_houses_list:
+            house.draw_territory()
+
+        for house in self.all_houses_list:
+            house.draw()
+
         for resource in self.resources: # Desenhar todos os resources dentro da lista criada após o start
             resource.draw()
 
         for agent in self.all_agents_list:
             agent.draw()
-
-        for house in self.all_houses_list:
-            house.draw()
 
         self.update_pos()
 
@@ -144,6 +150,9 @@ class Game:
 
     def update_pos(self):
         self.agent.rect.x, self.agent.rect.y = self.grid.check_move(self.agent.get_current_pos(), self.agent.new_pos, self.agent)
+
+    def add_house_to_tribe(self, tribe : str, house):
+        self.tribes[tribe].add_house(house)
 
     def start_game(self):
         '''Inicia o jogo com os recursos, tribos e tempo de regeneração dos recursos de acordo com o escolhido pelo utilizador'''
@@ -186,4 +195,3 @@ class Game:
             if h.get_current_pos() == wanted_position:
                 return True
         return False
-                    
