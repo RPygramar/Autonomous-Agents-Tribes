@@ -41,11 +41,8 @@ class Game:
         # Agent List
         self.all_agents_list = []
 
-        # TEST AGENT
-        self.agent = Agent(self.gui.get_screen(), self.grid, current_pos=(1, 3), color=(100, 100, 100), radius=5, tribe_name='grey')
-
         # Rules
-        self.house_price = 0 # Resources needed to build a house
+        self.house_price = 10 # Resources needed to build a house
 
     def start_matplotlib_process(self):
         self.p = Process(target=Plot().main, args=(self.queue,))
@@ -79,12 +76,27 @@ class Game:
                             print(self.agent.health)
                         elif event.key == pygame.K_h:
                             if self.agent.get_resources() >= self.house_price and not self.is_house_in_position(self.agent.get_current_pos()):
-                                house = House(self.gui.get_screen(), self.grid, self.agent.get_current_pos(), self.agent.color) #tribe=self.agent.get_tribe_name())
+                                house = House(self.gui.get_screen(), self.grid, self.agent.get_current_pos(), self.agent.color, tribe= self.agent.get_tribe_name())
                                 self.all_houses_list.append(house)
-                                self.agent.add_resources(-self.house_price)
+                                self.agent.build_house(self.house_price)
+                                print(self.agent.get_resources())
                                 print(self.all_houses_list)
-                                self.add_house_to_tribe('grey', house)
-                                print(self.tribes['grey'].get_houses())
+                                self.add_house_to_tribe(house.get_tribe(), house)
+                        elif event.key == pygame.K_p:
+                            for agent in self.all_agents_list:
+                                for house in self.all_houses_list:
+                                    if agent.rect.colliderect(house.rect):
+                                        if agent.get_tribe_name() == house.get_tribe():
+                                            agent.trade_from_house(house.add_resources_to_storage(agent.get_resources()))
+                                            print(house)
+                                            print(agent.get_resources())
+                        elif event.key == pygame.K_g:
+                            for agent in self.all_agents_list:
+                                for house in self.all_houses_list:
+                                    if agent.rect.colliderect(house.rect):
+                                            agent.trade_from_house(house.remove_resources_from_storage(10,agent.get_resources()))
+                                            print(house)
+                                            print(agent.get_resources())
 
                 # Fill background color
                 self.gui.get_screen().fill(self.gui.bg_color)    
@@ -160,6 +172,9 @@ class Game:
         positions = [] # Cria-se uma lista vazia para preencher todas as posições com recursos
         iterations = self.gui.slider.current_value
 
+        # TEST AGENT
+        self.agent = Agent(self.gui.get_screen(), self.grid, current_pos=(1, 3), color=(100, 100, 100), radius=5, tribe_name='grey', resource_limit=self.house_price)
+
         for i in range(int(iterations)): # Popula-se a lista positions com posições aleatórias e distintas
             random_tuple = (random.randint(0,89),random.randint(0,89))
             while random_tuple in positions:
@@ -181,9 +196,11 @@ class Game:
         print(self.tribes['grey'])
 
     def check_collisions(self):
+
+        # Agent - Resource
         for agent in self.all_agents_list:
             for resourse in self.resources:
-                if agent.rect.colliderect(resourse.rect):
+                if agent.rect.colliderect(resourse.rect) and not agent.is_resources_limit():
                     self.resources.remove(resourse)
                     self.total_resources -= 1
                     agent.add_resources(1)

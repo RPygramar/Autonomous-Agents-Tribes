@@ -38,4 +38,4 @@ class Tribe:
         self.__houses.append(house)
 
     def __repr__(self):
-        return f'Tribo: {self.__tribe_name} - {self.get_tribe()}'
+        return f'Tribo: {self.__tribe_name} - \n {self.get_tribe()} \n {self.get_houses()}'

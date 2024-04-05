@@ -2,15 +2,16 @@ from gui.ball import Ball
 
 
 class Agent(Ball):
-    def __init__(self, screen, grid, current_pos, color, radius, tribe_name):
+    def __init__(self, screen, grid, current_pos, color, radius, tribe_name, resource_limit = 10):
         super().__init__(screen, grid, current_pos, color, radius)
         self.__current_pos = current_pos
         self.new_pos = current_pos
         self.screen = screen
         self.grid = grid
         self.health = 100
-        self.__resourses = 0
+        self.__resources = 0
         self.__tribe_name = tribe_name
+        self.__resources_limit = resource_limit
 
     def get_x(self):
         return self.__current_pos[0]
@@ -49,16 +50,30 @@ class Agent(Ball):
         self.health -= 10
 
     def get_resources(self):
-        return self.__resourses
+        return self.__resources
     
     def add_resources(self, resource):
-        self.__resourses += resource
+        if not self.is_resources_limit() and (self.__resources + resource <= self.__resources_limit):
+            self.__resources += resource
+
+    def build_house(self, house_price):
+        if self.__resources >= house_price:
+            self.__resources -= house_price
+
+    def trade_from_house(self, resources):
+        self.__resources += resources
 
     def get_tribe_name(self) -> str:
         return self.__tribe_name
     
     def set_tribe_name(self, tribe_name : str) -> None:
         self.__tribe_name = tribe_name
+
+    def get_limit_resources(self) -> int:
+        return self.__resources_limit
+
+    def is_resources_limit(self):
+        return self.__resources >= self.__resources_limit
 
     def __repr__(self):
         return f'Agent - x: {self.pixel_pos[0]} | y: {self.pixel_pos[1]}'
