@@ -44,6 +44,7 @@ class Game:
         # Rules
         self.house_price = 10 # Resources needed to build a house
 
+
     def start_matplotlib_process(self):
         self.p = Process(target=Plot().main, args=(self.queue,))
         self.p.start()
@@ -64,7 +65,8 @@ class Game:
                         
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_w:
-                            self.agent.move_up()
+                            self.agent.run_agent()
+                            #self.agent.move_up()
                         elif event.key == pygame.K_s:
                             self.agent.move_down()
                         elif event.key == pygame.K_d:
@@ -150,6 +152,7 @@ class Game:
             resource.draw()
 
         for agent in self.all_agents_list:
+            agent.run_agent(self.house_price)
             agent.draw()
 
         self.update_pos()
@@ -159,6 +162,16 @@ class Game:
     def update_start_menu(self):
         '''Desenha os elementos do Menu Inicial'''
         self.gui.get_manager().draw_ui(self.gui.get_screen())
+
+    def on_build_house(self):
+        print('Resources: ',self.agent.get_resources(), 'is_house_in_position? : ', self.is_house_in_position(self.agent.get_current_pos()))
+        if self.agent.get_resources() >= self.house_price and not self.is_house_in_position(self.agent.get_current_pos()):
+            house = House(self.gui.get_screen(), self.grid, self.agent.get_current_pos(), self.agent.color, tribe= self.agent.get_tribe_name())
+            self.all_houses_list.append(house)
+            print("Houses:", self.all_houses_list)
+            print(self.agent.get_resources())
+            #print(self.all_houses_list)
+            self.add_house_to_tribe(house.get_tribe(), house)
 
     def update_pos(self):
         self.agent.rect.x, self.agent.rect.y = self.grid.check_move(self.agent.get_current_pos(), self.agent.new_pos, self.agent)
@@ -195,6 +208,9 @@ class Game:
 
         print(self.tribes['grey'])
 
+        # Callbacks
+        self.agent.set_on_build_house_callback(self.on_build_house)
+
     def check_collisions(self):
 
         # Agent - Resource
@@ -204,7 +220,7 @@ class Game:
                     self.resources.remove(resourse)
                     self.total_resources -= 1
                     agent.add_resources(1)
-                    print(self.tribes['grey'].get_total_resources())
+                    print('Tribes: ',self.tribes['grey'].get_total_resources())
                     break
 
     def is_house_in_position(self, wanted_position) -> bool:
