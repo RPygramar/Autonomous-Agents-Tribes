@@ -173,6 +173,24 @@ class Game:
             #print(self.all_houses_list)
             self.add_house_to_tribe(house.get_tribe(), house)
 
+    def on_put_in_house(self):
+        for agent in self.all_agents_list:
+            for house in self.all_houses_list:
+                if agent.rect.colliderect(house.rect):
+                    if agent.get_tribe_name() == house.get_tribe():
+                        agent.trade_from_house(house.add_resources_to_storage(agent.get_resources()))
+                        print(house)
+                        print(agent.get_resources())
+
+    def on_grab_from_house(self):
+        for agent in self.all_agents_list:
+            for house in self.all_houses_list:
+                if agent.rect.colliderect(house.rect):
+                        agent.trade_from_house(house.remove_resources_from_storage(agent.get_limit_resources(),agent.get_resources()))
+                        print(house)
+                        print(agent.get_resources())
+
+
     def update_pos(self):
         self.agent.rect.x, self.agent.rect.y = self.grid.check_move(self.agent.get_current_pos(), self.agent.new_pos, self.agent)
 
@@ -210,6 +228,8 @@ class Game:
 
         # Callbacks
         self.agent.set_on_build_house_callback(self.on_build_house)
+        self.agent.set_on_grab_from_house(self.on_grab_from_house)
+        self.agent.set_on_put_in_house(self.on_put_in_house)
 
     def check_collisions(self):
 

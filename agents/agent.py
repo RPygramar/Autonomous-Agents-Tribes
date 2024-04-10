@@ -13,9 +13,13 @@ class Agent(Ball):
         self.__tribe_name = tribe_name
         self.__resources_limit = resource_limit
         self.actions = {"movement": ['move_up', 'move_down', 'move_left', 'move_right'],
-                        "interaction": ['trade_from_house', 'build_house']
+                        "interaction": ['grab_from_house', 'put_from_house', 'build_house']
                         }
-        self.on_build_house = None
+        
+        # Callbacks
+        self.__on_build_house = None
+        self.__on_grab_from_house = None
+        self.__on_put_in_house = None
 
     def get_x(self):
         return self.__current_pos[0]
@@ -62,8 +66,8 @@ class Agent(Ball):
             self.__resources += resource
 
     def build_house(self, house_price):
-        if self.__resources >= house_price and self.on_build_house:
-            self.on_build_house()
+        if self.__resources >= house_price and self.__on_build_house:
+            self.__on_build_house()
             self.__resources -= house_price
 
     def trade_from_house(self, resources):
@@ -82,20 +86,24 @@ class Agent(Ball):
         return self.__resources >= self.__resources_limit
     
     def run_agent(self, house_price):
-        # random_action = random.choice(list(self.actions.keys()))
-        # random_action_action = random.choice(self.actions[random_action])
-        # print(random_action)
-        # exec(f'self.{random_action}()')
         random_movement = random.choice(self.actions['movement'])
         random_interaction = random.choice(self.actions['interaction'])
         exec(f'self.{random_movement}()')
         if random_interaction == 'build_house':
             self.build_house(house_price)
+        elif random_interaction == 'grab_from_house':
+            self.__on_grab_from_house()
+        elif random_interaction == 'put_from_house':
+            self.__on_put_in_house()
 
     def set_on_build_house_callback(self, callback):
-        self.on_build_house = callback
+        self.__on_build_house = callback
 
+    def set_on_grab_from_house(self, callback):
+        self.__on_grab_from_house = callback
 
+    def set_on_put_in_house(self, callback):
+        self.__on_put_in_house = callback
 
     def __repr__(self):
         return f'Agent - x: {self.pixel_pos[0]} | y: {self.pixel_pos[1]}'
