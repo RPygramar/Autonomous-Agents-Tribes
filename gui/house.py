@@ -28,7 +28,7 @@ class House:
         pygame.draw.polygon(self.screen, (self.color[0]-30, self.color[1]-30, self.color[2]-30), self.house_vertices)
     
     def draw_territory(self):
-        pygame.draw.rect(self.screen, (self.color[0]+60, self.color[1]+60, self.color[2]+60), self.territory_area)
+        pygame.draw.rect(self.screen, (self.color[0]+80, self.color[1]+80, self.color[2]+80), self.territory_area)
 
 
 

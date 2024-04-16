@@ -65,8 +65,7 @@ class Game:
                         
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_w:
-                            self.agent.run_agent()
-                            #self.agent.move_up()
+                            self.agent.move_up()
                         elif event.key == pygame.K_s:
                             self.agent.move_down()
                         elif event.key == pygame.K_d:
@@ -74,8 +73,7 @@ class Game:
                         elif event.key == pygame.K_a:
                             self.agent.move_left()
                         elif event.key == pygame.K_SPACE:
-                            self.agent.take_damage()
-                            print(self.agent.health)
+                            self.agent.move_Astar(list_resources=self.resources)
                         elif event.key == pygame.K_h:
                             if self.agent.get_resources() >= self.house_price and not self.is_house_in_position(self.agent.get_current_pos()):
                                 house = House(self.gui.get_screen(), self.grid, self.agent.get_current_pos(), self.agent.color, tribe= self.agent.get_tribe_name())
@@ -152,7 +150,7 @@ class Game:
             resource.draw()
 
         for agent in self.all_agents_list:
-            agent.run_agent(self.house_price)
+            agent.run_agent(self.house_price, self.resources)
             agent.draw()
 
         self.update_pos()

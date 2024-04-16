@@ -10,15 +10,15 @@ class Node:
         self.total_cost = float('inf') # Total cost of node ( start_cost + heuristic )
 
 # GRID
-ROW = 9
-COL = 10
+ROW = 90
+COL = 90
 
 # Check if node is valid
 def is_valid(row, col):
     return (row >= 0) and (row < ROW) and (col >= 0) and (col < COL)
 
 def is_unblocked(grid, row, col):
-    return grid[row][col] == 1
+    return grid[row][col] != -1
 
 # Check if node is destination
 def is_destination(row, col, destination):
@@ -26,7 +26,8 @@ def is_destination(row, col, destination):
 
 # Calculate heuristic of each node (Euclidean distance)
 def calculate_heuristic(row, col, destination):
-    return row == destination[0] and col == destination[1]
+    # return abs(row - destination[0]) + abs(col - destination[1])
+    return ((row - destination[0]) ** 2 + (col - destination[1]) ** 2) ** 0.5
 
 # Trace path from start to destination
 def trace_path(node, destination):
@@ -54,6 +55,8 @@ def trace_path(node, destination):
         print('->', i, end='')
     print()
 
+    return path
+
 # START ALGORITHM
 def A_STAR(grid, start, destination):
     # Check if the source and destination are valid
@@ -63,13 +66,17 @@ def A_STAR(grid, start, destination):
 
     # Check if start and destination are unblocked
     if not is_unblocked(grid, start[0], start[1]) or not is_unblocked(grid, destination[0], destination[1]):
+        print(start[0], start[1])
+        print(destination[0], destination[1])
         print('Source or destination is blocked')
         return
 
     # Check if already at destination
     if is_destination(start[0], start[1], destination):
         print('Already at destination')
-        return
+        if start == destination:
+            return
+        return destination
 
     # Initialize the closed list
     closed_list = [[False for _ in range(COL)] for _ in range(ROW)]
@@ -115,9 +122,9 @@ def A_STAR(grid, start, destination):
                     nodes_list[new_i][new_j].parent_col = j
                     print('Found destination')
                     # Trace and print the path from start to destination
-                    trace_path(nodes_list, destination)
+                    
                     found_destination = True
-                    return
+                    return trace_path(nodes_list, destination)
                 else:
                     # Calculate the new total_cost, start_cost and heuristic
                     start_new_cost = nodes_list[new_i][new_j].start_cost + 1
@@ -152,7 +159,7 @@ if __name__ == '__main__':
         [1, 1, 1, 0, 0, 0, 1, 0, 0, 1]
     ]
 
-    start = [1, 1]
-    destination = [0, 0]
+    start = (1, 1)
+    destination = (0, 0)
 
     A_STAR(grid, start, destination)

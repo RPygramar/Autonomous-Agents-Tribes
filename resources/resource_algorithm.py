@@ -14,3 +14,6 @@ class Resource_Algo(Resource):
 
     def get_y(self):
         return self.current_pos[1]
+
+    def get_current_pos(self):
+        return self.current_pos
