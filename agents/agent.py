@@ -49,8 +49,8 @@ class Agent(Ball):
                         self.move_down()
                     elif self.new_pos[1] > position[1]:
                         self.move_up()
-            #else:
-            #    self.build_house(self.__resources_limit)
+            else:
+                self.build_house(self.__resources_limit)
 
     def move_up(self):
         if self.new_pos[1] > 0:
@@ -88,7 +88,7 @@ class Agent(Ball):
 
     def build_house(self, house_price):
         if self.__resources >= house_price and self.__on_build_house:
-            self.__on_build_house()
+            self.__on_build_house(self)
             self.__resources -= house_price
 
     def trade_from_house(self, resources):
@@ -128,13 +128,12 @@ class Agent(Ball):
 
         return A_star.A_STAR(self.grid.entity_grid ,self.get_current_pos(), closest_pos)
 
-    def run_agent(self, house_price, resources):
-        # random_movement = random.choice(self.actions['movement'])
+    def run_agent(self, resources):
         random_movement = "move_Astar"
         random_interaction = random.choice(self.actions['interaction'])
         exec(f'self.{random_movement}(resources)')
         if random_interaction == 'build_house':
-            self.build_house(house_price)
+            self.build_house(self.__resources_limit)
         elif random_interaction == 'grab_from_house':
             self.__on_grab_from_house()
         elif random_interaction == 'put_from_house':

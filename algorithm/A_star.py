@@ -31,7 +31,7 @@ def calculate_heuristic(row, col, destination):
 
 # Trace path from start to destination
 def trace_path(node, destination):
-    print('Path: ')
+    # print('Path: ')
     path = []
     row = destination[0]
     col = destination[1]
@@ -51,9 +51,9 @@ def trace_path(node, destination):
     path.reverse()
 
     # Print path
-    for i in path:
-        print('->', i, end='')
-    print()
+    # for i in path:
+    #     print('->', i, end='')
+    # print()
 
     return path
 
@@ -61,19 +61,19 @@ def trace_path(node, destination):
 def A_STAR(grid, start, destination):
     # Check if the source and destination are valid
     if not is_valid(start[0], start[1]) or not is_valid(destination[0], destination[1]):
-        print('Start or destination is not valid ')
+        # print('Start or destination is not valid ')
         return
 
     # Check if start and destination are unblocked
     if not is_unblocked(grid, start[0], start[1]) or not is_unblocked(grid, destination[0], destination[1]):
-        print(start[0], start[1])
-        print(destination[0], destination[1])
-        print('Source or destination is blocked')
+        # print(start[0], start[1])
+        # print(destination[0], destination[1])
+        # print('Source or destination is blocked')
         return
 
     # Check if already at destination
     if is_destination(start[0], start[1], destination):
-        print('Already at destination')
+        # print('Already at destination')
         if start == destination:
             return
         return destination
@@ -120,7 +120,7 @@ def A_STAR(grid, start, destination):
                     # Set the parent of the destination node
                     nodes_list[new_i][new_j].parent_row = i
                     nodes_list[new_i][new_j].parent_col = j
-                    print('Found destination')
+                    # print('Found destination')
                     # Trace and print the path from start to destination
                     
                     found_destination = True
@@ -143,7 +143,8 @@ def A_STAR(grid, start, destination):
                         nodes_list[new_i][new_j].parent_col = j
 
     if not found_destination:
-        print('Failed to find destination node')
+        pass
+        # print('Failed to find destination node')
 
 if __name__ == '__main__':
     # Define the grid (1 for unblocked, 0 for blocked)

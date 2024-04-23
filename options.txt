@@ -1,10 +1,11 @@
-house_territory_area
+house_territory_area ✅
 number_of_resources ✅
-number_of_tribes
-resource_spawn_interval
-house_price
+number_of_tribes ✅
+initial_number_of_tribe_members ✅
+resource_spawn_interval ✅
+house_price ✅
 house_health
-house_max_storage
-agent_health
-agent_attack_damage
+house_max_storage ✅
+agent_health ✅
+agent_attack_damage ✅
 
