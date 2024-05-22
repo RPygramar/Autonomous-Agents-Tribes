@@ -3,17 +3,18 @@ from algorithm import A_star
 import random
 import math
 import time
+import pygame
 
 class Agent(Ball):
-    def __init__(self, screen, grid, current_pos, color, radius, tribe_name, resource_limit = 10):
+    def __init__(self, screen, grid, current_pos, color, radius, tribe_name, resource_limit = 10, attack = 10, health = 100):
         super().__init__(screen, grid, current_pos, color, radius)
         self.__current_pos = current_pos
-        self.new_pos = current_pos
+        self.new_pos = None
         self.screen = screen
         self.grid = grid
 
-        self.health = 100
-        self.attack = 10
+        self.health = health
+        self.attack_power = attack
         self.__resources = 0
         self.__tribe_name = tribe_name
         self.__resources_limit = resource_limit
@@ -26,6 +27,12 @@ class Agent(Ball):
         self.__on_grab_from_house = None
         self.__on_put_in_house = None
 
+        self.__size = 1
+        self.attack_area = None 
+
+    def draw_attack_area(self):
+        self.attack_area = pygame.Rect(self.grid.get_cell_x(self.__current_pos[0])-self.rectSize*self.__size, self.grid.get_cell_x(self.__current_pos[1])-self.rectSize*self.__size, self.rectSize*(self.__size*2+1), self.rectSize*(self.__size*2+1))
+    
     def get_x(self):
         return self.__current_pos[0]
 
@@ -40,44 +47,51 @@ class Agent(Ball):
         if list_resources:
             path = self.__a_star(list_resources)
             if path:
-                for position in path:
-                    if self.new_pos[0] < position[0]:
-                        self.move_right()
-                    elif self.new_pos[0] > position[0]:
-                        self.move_left()
-                    if self.new_pos[1] < position[1]:
-                        self.move_down()
-                    elif self.new_pos[1] > position[1]:
-                        self.move_up()
-            else:
-                self.build_house(self.__resources_limit)
-
+                for position, next_position in zip(path, path[1:]):
+                    if self.grid.entity_grid[next_position[0]][next_position[1]] == 0:
+                        self.new_pos = next_position
+                        if self.__current_pos[0] < next_position[0]:
+                            self.move_right()
+                        elif self.__current_pos[0] > next_position[0]:
+                            self.move_left()
+                        if self.__current_pos[1] < next_position[1]:
+                            self.move_down()
+                        elif self.__current_pos[1] > next_position[1]:
+                            self.move_up()
+                        self.rect.x, self.rect.y = self.grid.check_move(self.get_current_pos(), self.new_pos, self)
+            # else:
+            #     self.build_house(self.__resources_limit)
+                    
+            
     def move_up(self):
-        if self.new_pos[1] > 0:
-            self.new_pos = (self.new_pos[0], self.new_pos[1] - 1)
+        if self.__current_pos[1] > 0:
+            self.__current_pos = (self.__current_pos[0], self.__current_pos[1] - 1)
 
     def move_down(self):
-        if self.new_pos[1] < (self.screen.get_height() - 1 * self.grid.get_cell_size()) / self.grid.get_cell_size():
-            self.new_pos = (self.new_pos[0], self.new_pos[1] + 1)
+        if self.__current_pos[1] < (self.screen.get_height() - 1 * self.grid.get_cell_size()) / self.grid.get_cell_size():
+            self.__current_pos = (self.__current_pos[0], self.__current_pos[1] + 1)
 
     def move_left(self):
-        if self.new_pos[0] > 0:
-            self.new_pos = (self.new_pos[0] - 1, self.new_pos[1])
+        if self.__current_pos[0] > 0:
+            self.__current_pos = (self.__current_pos[0] - 1, self.__current_pos[1])
 
     def move_right(self):
-        if self.new_pos[0] < (self.screen.get_width() - 1 * self.grid.get_cell_size()) / self.grid.get_cell_size():
-            self.new_pos = (self.new_pos[0] + 1, self.new_pos[1])
+        if self.__current_pos[0] < (self.screen.get_width() - 1 * self.grid.get_cell_size()) / self.grid.get_cell_size():
+            self.__current_pos = (self.__current_pos[0] + 1, self.__current_pos[1])
 
     # Update current position to new position (if a move is possible)
-    def update_current_pos(self):
-        self.__current_pos = self.new_pos
+    def update_current_pos(self, pos):
+        self.__current_pos = pos
 
     # Update new position to current position (if a move is not possible)
-    def update_new_pos(self):
-        self.new_pos = self.__current_pos
+    def update_new_pos(self, pos):
+        self.new_pos = pos
 
-    def take_damage(self):
-        self.health -= 10
+    def take_damage(self, damage):
+        self.health -= damage
+    
+    def do_damage(self):
+        return self.attack_power
 
     def get_resources(self):
         return self.__resources
@@ -132,6 +146,7 @@ class Agent(Ball):
         random_movement = "move_Astar"
         random_interaction = random.choice(self.actions['interaction'])
         exec(f'self.{random_movement}(resources)')
+        self.draw_attack_area()
         if random_interaction == 'build_house':
             self.build_house(self.__resources_limit)
         elif random_interaction == 'grab_from_house':
@@ -149,4 +164,4 @@ class Agent(Ball):
         self.__on_put_in_house = callback
 
     def __repr__(self):
-        return f'Agent - x: {self.pixel_pos[0]} | y: {self.pixel_pos[1]}'
+        return f'Agent {self.get_tribe_name()} - x: {self.pixel_pos[0]} | y: {self.pixel_pos[1]}'

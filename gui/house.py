@@ -7,7 +7,7 @@ class House:
         self.pixel_pos = (grid.get_cell_x(current_pos[0]), grid.get_cell_y(current_pos[1]))
         self.grid = grid
         self.screen = screen
-        self.color = color
+        self.__color = color
         self.rectSize = self.grid.get_cell_size()
         self.rect = pygame.Rect(self.pixel_pos[0], self.pixel_pos[1], self.rectSize, self.rectSize)                                                              
         
@@ -25,10 +25,23 @@ class House:
         pass
 
     def draw(self):
-        pygame.draw.polygon(self.screen, (self.color[0]-30, self.color[1]-30, self.color[2]-30), self.house_vertices)
+        pygame.draw.polygon(self.screen, self.set_color('house'), self.house_vertices)
     
     def draw_territory(self):
-        pygame.draw.rect(self.screen, (self.color[0]+80, self.color[1]+80, self.color[2]+80), self.territory_area)
+        pygame.draw.rect(self.screen, self.set_color('territory'), self.territory_area)
+
+    def set_color(self, type=None):
+        rgb = list(self.__color)
+        if type == 'house':
+            for value in range(len(self.__color)):
+                new_value = max(0, min(255, rgb[value] - 30))
+                rgb[value] = new_value
+            return tuple(rgb)
+        else:
+            for value in range(len(self.__color)):
+                new_value = max(0, min(255, rgb[value] + 80))
+                rgb[value] = new_value
+            return tuple(rgb)
 
 
 

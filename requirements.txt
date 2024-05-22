@@ -1,6 +1,6 @@
-pygame==2.5.2
+pygame-ce==2.4.1
 spade==3.3.2
 python-dotenv==1.0.1
 aioconsole==0.7.0
-pygame-gui==0.6.9
+pygame-gui==0.6.10
 pygame-matplotlib==0.4

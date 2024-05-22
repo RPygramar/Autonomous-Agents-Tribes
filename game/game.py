@@ -42,13 +42,18 @@ class Game:
         # Agent List
         self.all_agents_list = []
 
-        # Rules
-        self.house_price = 10 # Resources needed to build a house
-
         # Default Values
-        self.total_resources = 6000
-        self.agents_per_tribe = 4
+        self.total_resources = 2000
+        self.agents_per_tribe = 1
         self.regeneration_time = 5000
+        self.initial_n_tribes = 2
+        self.house_price = 10
+        self.tribes = {'blue': Tribe(tribe_name='blue', color=(30, 144, 255)),
+                       'orange': Tribe(tribe_name='orange', color=(245, 130, 49)),
+                       'purple': Tribe(tribe_name='purple', color=(199, 21, 133)),
+                       'red': Tribe(tribe_name='red', color=(230, 25, 75))
+                       }
+        self.selected_tribes = {}
 
 
     def start_matplotlib_process(self):
@@ -170,6 +175,7 @@ class Game:
                         if event.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                             if event.ui_element == self.gui.tribes_number_slider:
                                 self.gui.value_number_tribes.set_text(f"Nº: {event.value:.0f}")
+                                self.initial_n_tribes = int(event.value)
                             elif event.ui_element == self.gui.initial_agents_slider:
                                 self.gui.value_initial_agents.set_text(f"Value: {event.value:.0f}")
                                 self.agents_per_tribe = int(event.value)
@@ -278,12 +284,22 @@ class Game:
 
         for agent in self.all_agents_list:
             agent.draw()
+            
 
-        for tribe in self.tribes.values():
-            print('WILL START TRIBE RUNNING')
-            tribe.run_tribe(self.resources)
-
-        self.update_pos()
+        #self.update_pos()
+        
+        for tribe_name, tribe in self.selected_tribes.items():
+        # Collect agents from all other tribes
+            other_agents = [
+                agent
+                for other_tribe_name, other_tribe in self.selected_tribes.items()
+                if other_tribe_name != tribe_name
+                for agent in other_tribe.get_tribe()
+            ]
+            
+            # Run the tribe with the collected agents from other tribes
+            tribe.run_tribe(resource_list=self.resources, agents_list=other_agents)
+        
 
         self.check_collisions()
 
@@ -335,16 +351,28 @@ class Game:
             
         del positions # elimina-se a lista para não ocupar memória
 
-        # TRIBE CREATE
-
-        self.tribes = {'grey': Tribe(tribe_name='grey')}
-
         # AGENT CREATE
+        tribe_names = list(self.tribes.keys())[:int(self.initial_n_tribes)]
+        self.current_tribes = tribe_names
+        print(tribe_names)
+        for tribe_name in tribe_names:
+            tribe = self.tribes[tribe_name]
+            self.selected_tribes[tribe_name] = tribe
+            for _ in range(int(self.agents_per_tribe)):
+                agent = Agent(
+                    self.gui.get_screen(),
+                    self.grid,
+                    current_pos=(random.randint(0, 89), random.randint(0, 89)),
+                    color=tribe.get_color(),
+                    radius=5,
+                    tribe_name=tribe_name,
+                    resource_limit=self.house_price
+                )
+                self.all_agents_list.append(agent)
+                tribe.add_agent(agent)
 
-        for _ in range(int(self.agents_per_tribe)):
-            agent = Agent(self.gui.get_screen(), self.grid, current_pos=(random.randint(0,89), random.randint(0,89)), color=(100, 100, 100), radius=5, tribe_name='grey', resource_limit=self.house_price)
-            self.all_agents_list.append(agent)
-            self.tribes['grey'].add_agent(agent)
+        
+        print(self.selected_tribes)
 
         # HOUSE CREATE
 
@@ -357,12 +385,17 @@ class Game:
             agent.set_on_build_house_callback(self.on_build_house)
             agent.set_on_grab_from_house(self.on_grab_from_house)
             agent.set_on_put_in_house(self.on_put_in_house)
+
+        # for tribe in self.tribes.values():
+        #     tribe.run_tribe(self.resources)
+
+        for tribe in self.selected_tribes.values():
+            tribe.run_tribe(self.resources)
         
         # Thread(target=agent.run_agent(self.resources)).start()
         # Process(target=agent.run_agent(self.resources)).start()
 
     def check_collisions(self):
-
         # Agent - Resource
         for agent in self.all_agents_list:
             for resourse in self.resources:
@@ -372,6 +405,8 @@ class Game:
                     agent.add_resources(1)
                     # print('Tribes: ',self.tribes['grey'].get_total_resources())
                     break
+            
+        # Verificar Colisão entre agentes de diferentes tribos 
 
     def is_house_in_position(self, wanted_position) -> bool:
         for h in self.all_houses_list:

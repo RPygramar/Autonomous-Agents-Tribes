@@ -204,7 +204,7 @@ class GUI:
     def __draw_initial_agents_slider(self):
         self.initial_agents_slider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect(((self.get_screen_width()//3),(self.get_screen_height()//3)),(300, 20)),
                                                value_range=(2,8),
-                                               start_value=4,
+                                               start_value=2,
                                                manager=self.__manager
                                                )
         
