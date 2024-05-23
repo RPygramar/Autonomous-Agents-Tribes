@@ -44,7 +44,7 @@ class Game:
 
         # Default Values
         self.total_resources = 2000
-        self.agents_per_tribe = 1
+        self.agents_per_tribe = 2
         self.regeneration_time = 5000
         self.initial_n_tribes = 2
         self.house_price = 10
@@ -282,8 +282,8 @@ class Game:
         for resource in self.resources: # Desenhar todos os resources dentro da lista criada após o start
             resource.draw()
 
-        for agent in self.all_agents_list:
-            agent.draw()
+        # for agent in self.all_agents_list:
+        #     agent.draw()
             
 
         #self.update_pos()
@@ -298,8 +298,11 @@ class Game:
             ]
             
             # Run the tribe with the collected agents from other tribes
-            tribe.run_tribe(resource_list=self.resources, agents_list=other_agents)
-        
+            deseased_agent = tribe.run_tribe(resource_list=self.resources, agents_list=other_agents)
+            if deseased_agent:
+                self.all_agents_list.remove(deseased_agent)
+                deseased_agent = None
+                print(self.all_agents_list)
 
         self.check_collisions()
 
@@ -354,7 +357,6 @@ class Game:
         # AGENT CREATE
         tribe_names = list(self.tribes.keys())[:int(self.initial_n_tribes)]
         self.current_tribes = tribe_names
-        print(tribe_names)
         for tribe_name in tribe_names:
             tribe = self.tribes[tribe_name]
             self.selected_tribes[tribe_name] = tribe
@@ -370,9 +372,6 @@ class Game:
                 )
                 self.all_agents_list.append(agent)
                 tribe.add_agent(agent)
-
-        
-        print(self.selected_tribes)
 
         # HOUSE CREATE
 

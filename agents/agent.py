@@ -42,6 +42,10 @@ class Agent(Ball):
     def get_current_pos(self) -> tuple:
         return self.__current_pos
 
+    def clear_path(self):
+        self.grid.entity_grid[self.__current_pos[0]][self.__current_pos[1]] = 0
+        self.grid.entity_grid[self.new_pos[0]][self.new_pos[1]] = 0
+
     # ACTION
     def move_Astar(self, list_resources: list) -> None:
         if list_resources:
@@ -62,7 +66,6 @@ class Agent(Ball):
             # else:
             #     self.build_house(self.__resources_limit)
                     
-            
     def move_up(self):
         if self.__current_pos[1] > 0:
             self.__current_pos = (self.__current_pos[0], self.__current_pos[1] - 1)

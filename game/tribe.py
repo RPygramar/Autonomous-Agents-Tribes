@@ -87,8 +87,20 @@ class Tribe:
     
     def run_tribe(self, resource_list=[],agents_list=[]) -> None:
         for agent in self.__tribe_agents:
-            agent.run_agent(resource_list)
-        # print(self.get_tribe())
+            if agent.health <= 0:
+                agent.clear_path()
+                self.__tribe_agents.remove(agent)
+                print(self.get_tribe_name(), 'died')
+                return agent
+            else:
+                agent.run_agent(resource_list)
+                for enemy_agent in agents_list:
+                    if agent.attack_area.colliderect(enemy_agent.rect):
+                        enemy_agent.take_damage(agent.attack_power)
+                        print(self.get_tribe_name(),agent.health)
+                agent.draw()
+        
+                
 
 
         
