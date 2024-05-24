@@ -212,7 +212,7 @@ class Game:
                                 self.gui.value_agents_health.set_text(f"HP: {event.value:.0f}")
                             if event.ui_element == self.gui.agents_attack_slider:
                                 self.gui.value_agents_attack.set_text(f"Attack: {event.value:.0f}")
-
+            # RESOURCES MENU
             elif self.mode == 5:
                 self.gui.get_screen().fill((49, 54, 63))
                 self.update_start_menu()
@@ -237,7 +237,7 @@ class Game:
                             elif event.ui_element == self.gui.resources_regeneration_slider:
                                 self.gui.value_resources_regeneration.set_text(f"Seconds: {event.value:.0f}")
                                 self.regeneration_time = int(event.value) * 1000
-
+            # HOUSE MENU
             elif self.mode == 6:
                 self.gui.get_screen().fill((49, 54, 63))
                 self.update_start_menu()
@@ -258,6 +258,7 @@ class Game:
                         if event.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                             if event.ui_element == self.gui.houses_slider_price:
                                 self.gui.value_houses_price.set_text(f"Price: {event.value:.0f}")
+                                self.house_price = int(event.value)
                             elif event.ui_element == self.gui.houses_health_slider:
                                 self.gui.value_houses_health.set_text(f"HP: {event.value:.0f}")
                             elif event.ui_element == self.gui.slider_houses_territory_area:
@@ -302,7 +303,7 @@ class Game:
             if deseased_agent:
                 self.all_agents_list.remove(deseased_agent)
                 deseased_agent = None
-                print(self.all_agents_list)
+                #print(self.all_agents_list)
 
         self.check_collisions()
 

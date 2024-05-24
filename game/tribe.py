@@ -56,6 +56,13 @@ class Tribe:
     def add_house(self, house: object) -> None:
         self.__houses.append(house)
 
+    def check_agent_in_house_territory(self, enemy_agents_list : list):
+        for house in self.get_houses():
+            for agent in enemy_agents_list:
+                if house.territory_area.colliderect(agent.rect):
+                        print('Intruso')
+                    
+
     # def start_tribe(self, resources_list):
     #     """Start the background management of tribe agents."""
     #     if self.tribe_thread is None or not self.tribe_thread.is_alive():
@@ -97,8 +104,10 @@ class Tribe:
                 for enemy_agent in agents_list:
                     if agent.attack_area.colliderect(enemy_agent.rect):
                         enemy_agent.take_damage(agent.attack_power)
-                        print(self.get_tribe_name(),agent.health)
+                        #print(self.get_tribe_name(),agent.health)
                 agent.draw()
+        self.check_agent_in_house_territory(agents_list)
+        #print(self.get_houses())
         
                 
 

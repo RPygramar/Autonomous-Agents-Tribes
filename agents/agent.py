@@ -81,7 +81,7 @@ class Agent(Ball):
     def move_right(self):
         if self.__current_pos[0] < (self.screen.get_width() - 1 * self.grid.get_cell_size()) / self.grid.get_cell_size():
             self.__current_pos = (self.__current_pos[0] + 1, self.__current_pos[1])
-
+    
     # Update current position to new position (if a move is possible)
     def update_current_pos(self, pos):
         self.__current_pos = pos
