@@ -27,6 +27,7 @@ class Grid:
             # print(f'pos_x: {self.get_cell_x(new_pos[0])}  |  pos_y {self.get_cell_y(new_pos[1])}')
             self.entity_grid[current_pos[0]][current_pos[1]] = 0
             agent.update_current_pos(pos=new_pos)
-            self.entity_grid[new_pos[0]][new_pos[1]] = 2
+            self.entity_grid[new_pos[0]][new_pos[1]] = 0
             return self.get_cell_x(new_pos[0]), self.get_cell_y(new_pos[1])
+        
         return self.get_cell_x(current_pos[0]), self.get_cell_y(current_pos[1])

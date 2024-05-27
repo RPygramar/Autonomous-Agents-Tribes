@@ -35,6 +35,12 @@ class House_Algo(House):
     def get_storage_limit(self) -> int:
         return self.__storage_limit
     
+    def set_storage(self, quantity):
+        self.__storage = quantity
+    
+    def take_damage(self, damage):
+        self.health -= damage
+    
     def add_resources_to_storage(self, resources : int) -> int:
         if (self.__storage + resources) <= self.__storage_limit:
             self.__storage += resources

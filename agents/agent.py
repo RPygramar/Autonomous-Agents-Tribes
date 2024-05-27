@@ -12,6 +12,7 @@ class Agent(Ball):
         self.new_pos = None
         self.screen = screen
         self.grid = grid
+        self.__color = color
 
         self.health = health
         self.attack_power = attack
@@ -30,6 +31,8 @@ class Agent(Ball):
         self.__size = 1
         self.attack_area = None 
 
+        self.acasalar = False
+
     def draw_attack_area(self):
         self.attack_area = pygame.Rect(self.grid.get_cell_x(self.__current_pos[0])-self.rectSize*self.__size, self.grid.get_cell_x(self.__current_pos[1])-self.rectSize*self.__size, self.rectSize*(self.__size*2+1), self.rectSize*(self.__size*2+1))
     
@@ -42,16 +45,21 @@ class Agent(Ball):
     def get_current_pos(self) -> tuple:
         return self.__current_pos
 
+    def get_color(self) -> tuple:
+        return self.__color
+
     def clear_path(self):
         self.grid.entity_grid[self.__current_pos[0]][self.__current_pos[1]] = 0
         self.grid.entity_grid[self.new_pos[0]][self.new_pos[1]] = 0
 
     # ACTION
-    def move_Astar(self, list_resources: list) -> None:
-        if list_resources:
-            path = self.__a_star(list_resources)
+    def move_Astar(self, list: list) -> None:
+        if list:
+            path = self.__a_star(list)
             if path:
                 for position, next_position in zip(path, path[1:]):
+                    #print('Path: ',path)
+                    #print(self.grid.entity_grid[next_position[0]][next_position[1]])
                     if self.grid.entity_grid[next_position[0]][next_position[1]] == 0:
                         self.new_pos = next_position
                         if self.__current_pos[0] < next_position[0]:
@@ -105,9 +113,28 @@ class Agent(Ball):
 
     def build_house(self, house_price):
         if self.__resources >= house_price and self.__on_build_house:
-            self.__on_build_house(self)
-            self.__resources -= house_price
+            house, is_new = self.__on_build_house(self)
+            if house and house.get_tribe() != self.get_tribe_name():
+                    self.attack_house(house)
+            elif house.get_tribe() == self.get_tribe_name() and is_new:
+                self.__resources -= house_price
+            else:
+                self.put_in_house(house)
 
+    def put_in_house(self, house):
+        if house.get_storage() == house.get_storage_limit():
+            self.move_Astar([house])
+            self.acasalar = True
+        else:
+            self.move_Astar([house])
+            if self.__on_put_in_house:
+                self.__on_put_in_house()
+
+    def attack_house(self, house : object):
+            #self.__a_star([house])
+            self.move_Astar([house])
+            #print('Recursos: ',self.get_resources())
+ 
     def trade_from_house(self, resources):
         self.__resources += resources
 
@@ -126,7 +153,7 @@ class Agent(Ball):
     def get_stats(self):
         return (self.health, self.attack)
 
-    def __a_star(self, list_resources):
+    def __a_star(self, list):
         def euclidean_distance(pos1, pos2):
             """Calculate the Euclidean distance between two positions."""
             x1, y1 = pos1
@@ -137,25 +164,37 @@ class Agent(Ball):
         min_distance = float('inf')
         closest_pos = None
         
-        for resource in list_resources:
-            distance = euclidean_distance(self.get_current_pos(), resource.get_current_pos())
+        for pos in list:
+            distance = euclidean_distance(self.get_current_pos(), pos.get_current_pos())
             if distance < min_distance:
                 min_distance = distance
-                closest_pos = resource.get_current_pos()
+                closest_pos = pos.get_current_pos()
 
         return A_star.A_STAR(self.grid.entity_grid ,self.get_current_pos(), closest_pos)
 
     def run_agent(self, resources):
-        random_movement = "move_Astar"
-        random_interaction = random.choice(self.actions['interaction'])
-        exec(f'self.{random_movement}(resources)')
+        pass
+        # move_Astar -> Resources
+        # build_house -> Constroi uma casa
+        # grab_from_house -> Retira recursos de uma casa
+        # put_from_house -> Repõe recursos em uma casa
         self.draw_attack_area()
-        if random_interaction == 'build_house':
+        if self.get_resources() < self.get_limit_resources():
+            self.move_Astar(resources)
+        elif self.get_resources() >= self.get_limit_resources():
             self.build_house(self.__resources_limit)
-        elif random_interaction == 'grab_from_house':
-            self.__on_grab_from_house()
-        elif random_interaction == 'put_from_house':
-            self.__on_put_in_house()
+        
+
+        # random_movement = "move_Astar"
+        # random_interaction = random.choice(self.actions['interaction'])
+        # exec(f'self.{random_movement}(resources)')
+        # 
+        # if random_interaction == 'build_house':
+        #     self.build_house(self.__resources_limit)
+        # elif random_interaction == 'grab_from_house':
+        #     self.__on_grab_from_house()
+        # elif random_interaction == 'put_from_house':
+        #     self.__on_put_in_house()
 
     def set_on_build_house_callback(self, callback):
         self.__on_build_house = callback

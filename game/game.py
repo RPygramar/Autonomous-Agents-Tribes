@@ -45,8 +45,8 @@ class Game:
         # Default Values
         self.total_resources = 2000
         self.agents_per_tribe = 2
-        self.regeneration_time = 5000
-        self.initial_n_tribes = 2
+        self.regeneration_time = 2000
+        self.initial_n_tribes = 1
         self.house_price = 10
         self.tribes = {'blue': Tribe(tribe_name='blue', color=(30, 144, 255)),
                        'orange': Tribe(tribe_name='orange', color=(245, 130, 49)),
@@ -55,6 +55,7 @@ class Game:
                        }
         self.selected_tribes = {}
 
+        self.time = pygame.time.get_ticks()
 
     def start_matplotlib_process(self):
         self.p = Process(target=Plot().main, args=(self.queue,))
@@ -64,7 +65,6 @@ class Game:
     # MÉTODO QUE MANIPULA O JOGO
     def run(self):
         while self.game_running:
-
             time_delta = self.gui.clock.tick(60) / 1000.0
             
             # Screen da Simulação
@@ -282,12 +282,6 @@ class Game:
 
         for resource in self.resources: # Desenhar todos os resources dentro da lista criada após o start
             resource.draw()
-
-        # for agent in self.all_agents_list:
-        #     agent.draw()
-            
-
-        #self.update_pos()
         
         for tribe_name, tribe in self.selected_tribes.items():
         # Collect agents from all other tribes
@@ -297,25 +291,48 @@ class Game:
                 if other_tribe_name != tribe_name
                 for agent in other_tribe.get_tribe()
             ]
-            
             # Run the tribe with the collected agents from other tribes
             deseased_agent = tribe.run_tribe(resource_list=self.resources, agents_list=other_agents)
             if deseased_agent:
                 self.all_agents_list.remove(deseased_agent)
                 deseased_agent = None
-                #print(self.all_agents_list)
+        
+            new_agent = tribe.reproduce_agents()
+            if new_agent:
+                a = Agent(
+                    self.gui.get_screen(),
+                    self.grid,
+                    current_pos=(new_agent.get_current_pos()),
+                    color=new_agent.get_color(),
+                    radius=5,
+                    tribe_name=new_agent.get_tribe_name(),
+                    resource_limit=self.house_price
+                )
+                self.all_agents_list.append(a)
+                tribe.add_agent(a)
+                print(a)
+                #print(tribe.get_tribe())
 
         self.check_collisions()
+
+        self.generate_resource()
+
+        self.house_alive()
 
     def update_start_menu(self):
         '''Desenha os elementos do Menu Inicial'''
         self.gui.get_manager().draw_ui(self.gui.get_screen())
 
     def on_build_house(self, agent : object):
-        if agent.get_resources() >= self.house_price and not self.is_house_in_position(agent.get_current_pos()):
+        collide_with_house = self.is_house_in_position(agent)
+        if agent.get_resources() >= self.house_price and not collide_with_house[0]:
             house = House(self.gui.get_screen(), self.grid, agent.get_current_pos(), agent.color, tribe= agent.get_tribe_name())
             self.all_houses_list.append(house)
             self.add_house_to_tribe(house.get_tribe(), house)
+            #print('CONSTRUI CASA EM: ', house.get_current_pos())
+            return house, True
+        else:
+            return collide_with_house[1], False
 
     def on_put_in_house(self):
         for agent in self.all_agents_list:
@@ -378,16 +395,11 @@ class Game:
 
         self.all_houses_list = []
 
-        # print(self.tribes)
-
         # Callbacks
         for agent in self.all_agents_list:
             agent.set_on_build_house_callback(self.on_build_house)
             agent.set_on_grab_from_house(self.on_grab_from_house)
             agent.set_on_put_in_house(self.on_put_in_house)
-
-        # for tribe in self.tribes.values():
-        #     tribe.run_tribe(self.resources)
 
         for tribe in self.selected_tribes.values():
             tribe.run_tribe(self.resources)
@@ -403,13 +415,39 @@ class Game:
                     self.resources.remove(resourse)
                     self.total_resources -= 1
                     agent.add_resources(1)
+                    #print(agent.get_resources())
                     # print('Tribes: ',self.tribes['grey'].get_total_resources())
                     break
+                    
             
         # Verificar Colisão entre agentes de diferentes tribos 
 
-    def is_house_in_position(self, wanted_position) -> bool:
+    def is_house_in_position(self, agent : object) -> bool:
         for h in self.all_houses_list:
-            if h.get_current_pos() == wanted_position:
-                return True
-        return False
+            if h.get_current_pos() == agent.get_current_pos() or h.territory_area.colliderect(agent.rect):
+                #print('Not Possible')
+                return True, h
+        return False, None
+    
+    def generate_resource(self):
+        timer = pygame.time.get_ticks()
+        if timer - self.time >= self.regeneration_time:
+            self.time = timer
+            pos = []
+            for resource in self.resources:
+                pos.append(resource.current_pos)
+            for _ in range(100):
+                random_tuple = (random.randint(0,89),random.randint(0,89))
+                while random_tuple in pos:
+                    random_tuple = (random.randint(0,89),random.randint(0,89))
+                pos.append(random_tuple)
+                self.resources.append(Resource(self.gui.get_screen(), self.grid, random_tuple, color=(0,128,0)))
+                # print('Created new RESOURCE on: ',random_tuple)
+            del pos
+    
+    def house_alive(self):
+        for house in self.all_houses_list:
+            if house.health <= 0:
+                self.all_houses_list.remove(house)
+                
+
