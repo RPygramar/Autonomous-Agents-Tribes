@@ -29,7 +29,7 @@ class Agent(Ball):
         self.__on_put_in_house = None
 
         self.__size = 1
-        self.attack_area = None 
+        self.attack_area = pygame.Rect(self.grid.get_cell_x(self.__current_pos[0])-self.rectSize*self.__size, self.grid.get_cell_x(self.__current_pos[1])-self.rectSize*self.__size, self.rectSize*(self.__size*2+1), self.rectSize*(self.__size*2+1))
 
         self.acasalar = False
 
@@ -107,28 +107,25 @@ class Agent(Ball):
     def get_resources(self):
         return self.__resources
     
+    def set_resources(self, amount):
+        self.__resources = amount
+
     def add_resources(self, resource):
         if not self.is_resources_limit() and (self.__resources + resource <= self.__resources_limit):
             self.__resources += resource
 
     def build_house(self, house_price):
-        if self.__resources >= house_price and self.__on_build_house:
-            house, is_new = self.__on_build_house(self)
-            if house and house.get_tribe() != self.get_tribe_name():
-                    self.attack_house(house)
-            elif house.get_tribe() == self.get_tribe_name() and is_new:
-                self.__resources -= house_price
-            else:
-                self.put_in_house(house)
+        if self.__resources >= house_price:
+            self.__on_build_house(self)
 
     def put_in_house(self, house):
         if house.get_storage() == house.get_storage_limit():
-            self.move_Astar([house])
-            self.acasalar = True
+            print('full stock')
+            #print('preso no acasalar')
         else:
-            self.move_Astar([house])
             if self.__on_put_in_house:
                 self.__on_put_in_house()
+                #print('preso no put_in_house')
 
     def attack_house(self, house : object):
             #self.__a_star([house])
@@ -172,8 +169,13 @@ class Agent(Ball):
 
         return A_star.A_STAR(self.grid.entity_grid ,self.get_current_pos(), closest_pos)
 
-    def run_agent(self, resources):
-        pass
+    def colliding_with_house_territory(self, house_list : object):
+        for house in house_list:
+            if house.territory_area.colliderect(self.rect):
+                return house
+        return False
+
+    def run_agent(self, resources, houses):
         # move_Astar -> Resources
         # build_house -> Constroi uma casa
         # grab_from_house -> Retira recursos de uma casa
@@ -182,7 +184,13 @@ class Agent(Ball):
         if self.get_resources() < self.get_limit_resources():
             self.move_Astar(resources)
         elif self.get_resources() >= self.get_limit_resources():
-            self.build_house(self.__resources_limit)
+            house = self.colliding_with_house_territory(houses)
+            if house:
+                self.move_Astar([house])
+                self.put_in_house(house)
+            else:
+                self.build_house(self.__resources_limit)
+            
         
 
         # random_movement = "move_Astar"

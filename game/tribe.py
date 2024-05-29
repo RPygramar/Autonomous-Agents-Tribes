@@ -75,22 +75,14 @@ class Tribe:
     #         self.q.put(agent)
     
     def reproduce_agents(self):
-        for agent in self.__tribe_agents:
-            lista_agentes = [a for a in self.__tribe_agents if a != agent]
-            if agent.acasalar:
-                agent.move_Astar(lista_agentes)
-                agent.acasalar = False
-                for house in self.get_houses():
-                    if house.territory_area.colliderect(agent.attack_area) and house.get_storage() >= house.get_storage_limit():
-                        house.set_storage(0)
-                        return agent
+        for house in self.get_houses():
+            if house.get_storage() == house.get_storage_limit():
+                house.set_storage(0)
+                return house
                 
 
                     # a casa está a manter os recursos!!!
                         
-        
-                        
-
     def run_tribe(self, resource_list=[],agents_list=[]) -> None:
         for house in self.__houses:
             if house.health <= 0:
@@ -107,11 +99,15 @@ class Tribe:
                 #print(self.get_tribe_name(), 'died')
                 return agent
             else:
-                agent.run_agent(resource_list)
+                agent.run_agent(resources=resource_list,houses=self.get_houses())
                 for enemy_agent in agents_list:
                     if agent.attack_area.colliderect(enemy_agent.rect):
                         enemy_agent.take_damage(agent.attack_power)
                 agent.draw()
+            #if len(self.get_tribe()) >= 2:
+             #   print(self.get_tribe()[1], self.get_tribe()[1].get_resources(), self.get_tribe()[1].colliding_with_house_territory(self.get_houses()))
+                        # print(len(self.get_tribe()))
+                        # print(agent, agent.get_resources())
         #print(self.get_houses())
         
                 

@@ -44,9 +44,9 @@ class Game:
 
         # Default Values
         self.total_resources = 2000
-        self.agents_per_tribe = 2
+        self.agents_per_tribe = 1
         self.regeneration_time = 2000
-        self.initial_n_tribes = 1
+        self.initial_n_tribes = 2
         self.house_price = 10
         self.tribes = {'blue': Tribe(tribe_name='blue', color=(30, 144, 255)),
                        'orange': Tribe(tribe_name='orange', color=(245, 130, 49)),
@@ -305,12 +305,14 @@ class Game:
                     current_pos=(new_agent.get_current_pos()),
                     color=new_agent.get_color(),
                     radius=5,
-                    tribe_name=new_agent.get_tribe_name(),
+                    tribe_name=new_agent.get_tribe(),
                     resource_limit=self.house_price
                 )
                 self.all_agents_list.append(a)
                 tribe.add_agent(a)
-                print(a)
+                a.set_on_build_house_callback(self.on_build_house)
+                a.set_on_grab_from_house(self.on_grab_from_house)
+                a.set_on_put_in_house(self.on_put_in_house)
                 #print(tribe.get_tribe())
 
         self.check_collisions()
@@ -324,15 +326,16 @@ class Game:
         self.gui.get_manager().draw_ui(self.gui.get_screen())
 
     def on_build_house(self, agent : object):
-        collide_with_house = self.is_house_in_position(agent)
-        if agent.get_resources() >= self.house_price and not collide_with_house[0]:
+        if agent.get_resources() >= self.house_price and not self.is_house_in_position(agent):
             house = House(self.gui.get_screen(), self.grid, agent.get_current_pos(), agent.color, tribe= agent.get_tribe_name())
             self.all_houses_list.append(house)
             self.add_house_to_tribe(house.get_tribe(), house)
+            agent.set_resources(0)       
+
             #print('CONSTRUI CASA EM: ', house.get_current_pos())
-            return house, True
-        else:
-            return collide_with_house[1], False
+            #return house, True
+        #else:
+        #    return collide_with_house[1], False
 
     def on_put_in_house(self):
         for agent in self.all_agents_list:
@@ -426,8 +429,8 @@ class Game:
         for h in self.all_houses_list:
             if h.get_current_pos() == agent.get_current_pos() or h.territory_area.colliderect(agent.rect):
                 #print('Not Possible')
-                return True, h
-        return False, None
+                return True
+        return False
     
     def generate_resource(self):
         timer = pygame.time.get_ticks()

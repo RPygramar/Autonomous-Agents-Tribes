@@ -7,6 +7,7 @@ class House_Algo(House):
         self.new_pos = current_pos
         self.screen = screen
         self.grid = grid
+        self.__color = color
 
         self.health = 100
         self.__tribe = tribe
@@ -25,6 +26,9 @@ class House_Algo(House):
     
     def set_tribe(self ,tribe : str) -> None:
         self.__tribe = tribe
+
+    def get_color(self):
+        return self.__color
 
     def get_tribe(self) -> str:
         return self.__tribe
