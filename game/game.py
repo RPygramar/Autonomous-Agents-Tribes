@@ -22,7 +22,14 @@ class Game:
         
         # Init interface
         self.gui = GUI()
-        self.queue = Queue()
+
+        # Queues for plots
+        self.queue_total_resources = Queue()
+        self.queue_resources_tribe_blue = Queue()
+        self.queue_resources_tribe_orange = Queue()
+        self.queue_resources_tribe_purple = Queue()
+        self.queue_resources_tribe_red = Queue()
+
         self.grid = Grid(self.gui)
         self.grid.load_map()
 
@@ -44,7 +51,7 @@ class Game:
 
         # Default Values
         self.total_resources = 2000
-        self.agents_per_tribe = 1
+        self.agents_per_tribe = 2
         self.regeneration_time = 2000
         self.initial_n_tribes = 2
         self.house_price = 10
@@ -58,7 +65,11 @@ class Game:
         self.time = pygame.time.get_ticks()
 
     def start_matplotlib_process(self):
-        self.p = Process(target=Plot().main, args=(self.queue,))
+        self.p = Process(target=Plot().main, args=(self.queue_total_resources,
+                                                   self.queue_resources_tribe_blue,
+                                                    self.queue_resources_tribe_orange,
+                                                    self.queue_resources_tribe_purple,
+                                                    self.queue_resources_tribe_red,))
         self.p.start()
 
 
@@ -81,8 +92,13 @@ class Game:
                 self.update()
 
                 # Enviar informação para o gráfico
-                self.queue.put(self.total_resources)
-            
+                self.queue_total_resources.put(len(self.resources))
+                self.queue_resources_tribe_blue.put(self.tribes['blue'].get_total_resources())
+                self.queue_resources_tribe_orange.put(self.tribes['orange'].get_total_resources())
+                self.queue_resources_tribe_purple.put(self.tribes['purple'].get_total_resources())
+                self.queue_resources_tribe_red.put(self.tribes['red'].get_total_resources())
+
+
             # Screen do Main Menu
             elif self.mode == 0:
                 self.gui.get_screen().fill((49, 54, 63))
@@ -292,7 +308,7 @@ class Game:
                 for agent in other_tribe.get_tribe()
             ]
             # Run the tribe with the collected agents from other tribes
-            deseased_agent = tribe.run_tribe(resource_list=self.resources, agents_list=other_agents)
+            deseased_agent = tribe.run_tribe(resource_list=self.resources, enemy_agents_list=other_agents)
             if deseased_agent:
                 self.all_agents_list.remove(deseased_agent)
                 deseased_agent = None

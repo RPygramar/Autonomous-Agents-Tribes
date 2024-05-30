@@ -42,6 +42,8 @@ class Tribe:
         total_resources = 0
         for agent in self.get_tribe():
             total_resources += agent.get_resources()
+        for house in self.get_houses():
+            total_resources += house.get_storage()
         return total_resources
 
     def get_tribe_name(self) -> str:
@@ -74,21 +76,33 @@ class Tribe:
     #     for agent in self.__tribe_agents:
     #         self.q.put(agent)
     
+    def check_enemy_in_territory(self, enemies):
+        for house in self.get_houses():    
+            house.call_help(enemies=[enemy for enemy in enemies if enemy.rect.colliderect(house.territory_area)],
+                            agents=[agent for agent in self.get_tribe() if house.territory_area.colliderect(agent.rect)])
+                        
     def reproduce_agents(self):
         for house in self.get_houses():
             if house.get_storage() == house.get_storage_limit():
                 house.set_storage(0)
                 return house
-                
 
-                    # a casa está a manter os recursos!!!
-                        
-    def run_tribe(self, resource_list=[],agents_list=[]) -> None:
+    def heal_agent(self, agent):
+        if agent.check_need_heal():
+            for house in self.get_houses():
+                if house.territory_area.colliderect(agent.rect) and house.get_storage() != 0:
+                    agent.move_Astar([house])
+                    house.heal_agent(agent)
+                    break
+
+    def run_tribe(self, resource_list=[],enemy_agents_list=[]) -> None:
         for house in self.__houses:
             if house.health <= 0:
                 self.__houses.remove(house)
             else:
-                for enemy_agent in agents_list:
+                enemy_in_house_territory = [enemy for enemy in enemy_agents_list if enemy.rect.colliderect(house.territory_area)]
+                self.check_enemy_in_territory(enemy_in_house_territory)
+                for enemy_agent in enemy_in_house_territory:
                     if enemy_agent.attack_area.colliderect(house.territory_area):
                         house.take_damage(enemy_agent.attack_power)
 
@@ -96,24 +110,16 @@ class Tribe:
             if agent.health <= 0:
                 agent.clear_path()
                 self.__tribe_agents.remove(agent)
-                #print(self.get_tribe_name(), 'died')
                 return agent
             else:
-                agent.run_agent(resources=resource_list,houses=self.get_houses())
-                for enemy_agent in agents_list:
+                self.heal_agent(agent)
+                agent.run_agent(resources=resource_list, houses=self.get_houses(), team_agents=self.get_tribe())
+                for enemy_agent in enemy_agents_list:
                     if agent.attack_area.colliderect(enemy_agent.rect):
                         enemy_agent.take_damage(agent.attack_power)
                 agent.draw()
-            #if len(self.get_tribe()) >= 2:
-             #   print(self.get_tribe()[1], self.get_tribe()[1].get_resources(), self.get_tribe()[1].colliding_with_house_territory(self.get_houses()))
-                        # print(len(self.get_tribe()))
-                        # print(agent, agent.get_resources())
-        #print(self.get_houses())
-        
-                
+        self.check_enemy_in_territory(enemy_agents_list)
 
-
-        
         # self.q.join()
         # self.q.put(None)
     

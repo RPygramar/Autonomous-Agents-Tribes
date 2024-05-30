@@ -64,7 +64,21 @@ class House_Algo(House):
             difference = self.__storage
             self.__storage = 0
             return difference
+        
+    def call_help(self, enemies, agents):
+        if enemies and agents:
+            for agent in agents:
+                if agent.confident_decision():
+                    agent.move_Astar(enemies)
+                else:
+                    agent.call_help = True
 
+    def heal_agent(self, agent):
+        if self.get_storage() > 0 and agent.health < agent.get_full_health():
+            #print('healed', agent.health)
+            agent.health += self.__storage
+            self.__storage -= self.__storage
+            #print('storage', self.get_storage())
     
     def __repr__(self):
         return f'House - Tribe: {self.get_tribe()} \n Storage: {self.get_storage()} \n Position - x: {self.pixel_pos[0]} | y: {self.pixel_pos[1]}'

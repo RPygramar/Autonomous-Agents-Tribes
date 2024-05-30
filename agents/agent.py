@@ -14,28 +14,36 @@ class Agent(Ball):
         self.grid = grid
         self.__color = color
 
+        self.__full_health = health
         self.health = health
         self.attack_power = attack
         self.__resources = 0
         self.__tribe_name = tribe_name
         self.__resources_limit = resource_limit
+        self.__confidence = random.randint(0,20)
+        self.virtual_confidence = 0
         self.actions = {"movement": ['move_up', 'move_down', 'move_left', 'move_right','move_Astar(resources)'],
                         "interaction": ['grab_from_house', 'put_from_house', 'build_house']
                         }
         
+        self.call_help = False
         # Callbacks
         self.__on_build_house = None
         self.__on_grab_from_house = None
         self.__on_put_in_house = None
 
-        self.__size = 1
-        self.attack_area = pygame.Rect(self.grid.get_cell_x(self.__current_pos[0])-self.rectSize*self.__size, self.grid.get_cell_x(self.__current_pos[1])-self.rectSize*self.__size, self.rectSize*(self.__size*2+1), self.rectSize*(self.__size*2+1))
+        self.__size_attack = 1
+        self.__size_call = 8
+        self.attack_area = pygame.Rect(self.grid.get_cell_x(self.__current_pos[0])-self.rectSize*self.__size_attack, self.grid.get_cell_x(self.__current_pos[1])-self.rectSize*self.__size_attack, self.rectSize*(self.__size_attack*2+1), self.rectSize*(self.__size_attack*2+1))
+        self.call_area = pygame.Rect(self.grid.get_cell_x(self.__current_pos[0])-self.rectSize*self.__size_call, self.grid.get_cell_x(self.__current_pos[1])-self.rectSize*self.__size_call, self.rectSize*(self.__size_call*2+1), self.rectSize*(self.__size_call*2+1))
+
 
         self.acasalar = False
 
-    def draw_attack_area(self):
-        self.attack_area = pygame.Rect(self.grid.get_cell_x(self.__current_pos[0])-self.rectSize*self.__size, self.grid.get_cell_x(self.__current_pos[1])-self.rectSize*self.__size, self.rectSize*(self.__size*2+1), self.rectSize*(self.__size*2+1))
-    
+    def draw_areas(self):
+        self.attack_area = pygame.Rect(self.grid.get_cell_x(self.__current_pos[0])-self.rectSize*self.__size_attack, self.grid.get_cell_x(self.__current_pos[1])-self.rectSize*self.__size_attack, self.rectSize*(self.__size_attack*2+1), self.rectSize*(self.__size_attack*2+1))
+        self.call_area = pygame.Rect(self.grid.get_cell_x(self.__current_pos[0])-self.rectSize*self.__size_call, self.grid.get_cell_x(self.__current_pos[1])-self.rectSize*self.__size_call, self.rectSize*(self.__size_call*2+1), self.rectSize*(self.__size_call*2+1))
+
     def get_x(self):
         return self.__current_pos[0]
 
@@ -47,6 +55,12 @@ class Agent(Ball):
 
     def get_color(self) -> tuple:
         return self.__color
+    
+    def get_confidence(self):
+        return self.__confidence
+    
+    def get_full_health(self):
+        return self.__confidence
 
     def clear_path(self):
         self.grid.entity_grid[self.__current_pos[0]][self.__current_pos[1]] = 0
@@ -98,6 +112,13 @@ class Agent(Ball):
     def update_new_pos(self, pos):
         self.new_pos = pos
 
+    def confident_decision(self):
+        if self.health >= self.__full_health//2 and (self.get_confidence()+self.virtual_confidence)>10:
+            self.call_help = False
+            return True
+        else:
+            return False
+
     def take_damage(self, damage):
         self.health -= damage
     
@@ -120,17 +141,18 @@ class Agent(Ball):
 
     def put_in_house(self, house):
         if house.get_storage() == house.get_storage_limit():
-            print('full stock')
-            #print('preso no acasalar')
+            pass
         else:
             if self.__on_put_in_house:
                 self.__on_put_in_house()
-                #print('preso no put_in_house')
 
     def attack_house(self, house : object):
-            #self.__a_star([house])
+        if self.confident_decision():    
             self.move_Astar([house])
-            #print('Recursos: ',self.get_resources())
+
+    def defend_house(self, enemy_pos):
+        if self.confident_decision():
+            self.move_Astar([enemy_pos])
  
     def trade_from_house(self, resources):
         self.__resources += resources
@@ -175,12 +197,29 @@ class Agent(Ball):
                 return house
         return False
 
-    def run_agent(self, resources, houses):
+    def check_for_help(self, team_agents):
+        self.virtual_confidence = 0
+        a = None
+        for agent in team_agents:
+            if agent != self and agent.call_help and self.call_area.colliderect(agent.call_area):
+                a = agent
+                self.virtual_confidence += 3
+                agent.call_help = False
+        if a:
+            self.move_Astar([a])
+
+    def check_need_heal(self):
+        if self.health < self.__full_health//4: return True
+        else: return False
+
+    def run_agent(self, resources, houses, team_agents):
         # move_Astar -> Resources
         # build_house -> Constroi uma casa
         # grab_from_house -> Retira recursos de uma casa
         # put_from_house -> Repõe recursos em uma casa
-        self.draw_attack_area()
+        self.draw_areas()
+        if self.confident_decision():
+            self.check_for_help(team_agents)
         if self.get_resources() < self.get_limit_resources():
             self.move_Astar(resources)
         elif self.get_resources() >= self.get_limit_resources():
@@ -190,19 +229,6 @@ class Agent(Ball):
                 self.put_in_house(house)
             else:
                 self.build_house(self.__resources_limit)
-            
-        
-
-        # random_movement = "move_Astar"
-        # random_interaction = random.choice(self.actions['interaction'])
-        # exec(f'self.{random_movement}(resources)')
-        # 
-        # if random_interaction == 'build_house':
-        #     self.build_house(self.__resources_limit)
-        # elif random_interaction == 'grab_from_house':
-        #     self.__on_grab_from_house()
-        # elif random_interaction == 'put_from_house':
-        #     self.__on_put_in_house()
 
     def set_on_build_house_callback(self, callback):
         self.__on_build_house = callback
