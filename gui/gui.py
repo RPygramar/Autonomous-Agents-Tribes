@@ -228,8 +228,8 @@ class GUI:
     # AGENTS HEALTH SLIDER
     def __draw_slider_agents_health(self):
         self.agents_health_slider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect(((self.get_screen_width()//3),(self.get_screen_height()//3)-100),(300, 20)),
-                                               value_range=(10,50),
-                                               start_value=25,
+                                               value_range=(50,150),
+                                               start_value=100,
                                                manager=self.__manager
                                                )
         self.agents_health_slider_label = pygame_gui.elements.UILabel(
@@ -290,8 +290,8 @@ class GUI:
         )
 
         self.resources_regeneration_slider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect(((self.get_screen_width()//3),(self.get_screen_height()//3)),(300, 20)),
-                                               value_range=(1,20),
-                                               start_value=5,
+                                               value_range=(1,8),
+                                               start_value=2,
                                                manager=self.__manager
                                                )
         
@@ -369,8 +369,8 @@ class GUI:
         )
 
         self.slider_houses_territory_area = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect(((self.get_screen_width()//3),(self.get_screen_height()//3 + 200)),(300, 20)),
-                                            value_range=(10,200),
-                                            start_value=100,
+                                            value_range=(1,10),
+                                            start_value=6,
                                             manager=self.__manager
                                             )
         
@@ -382,7 +382,7 @@ class GUI:
 
         self.value_houses_territory_area = pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect((self.get_screen_width() // 3 + 25 + 300 + 10, self.get_screen_height() // 3 + 200), (100, 20)),
-            text=f"AREA: {self.houses_health_slider.current_value}",  # Initial text
+            text=f"Area: {self.slider_houses_territory_area.current_value}",  # Initial text
             manager=self.__manager
         )
 

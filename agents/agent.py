@@ -59,6 +59,11 @@ class Agent(Ball):
     def get_confidence(self):
         return self.__confidence
     
+    def set_confidence(self, confidence):
+        if confidence > 20: confidence = 20
+        elif confidence < 0: confidence = 0
+        self.__confidence = confidence
+    
     def get_full_health(self):
         return self.__confidence
 
@@ -72,8 +77,6 @@ class Agent(Ball):
             path = self.__a_star(list)
             if path:
                 for position, next_position in zip(path, path[1:]):
-                    #print('Path: ',path)
-                    #print(self.grid.entity_grid[next_position[0]][next_position[1]])
                     if self.grid.entity_grid[next_position[0]][next_position[1]] == 0:
                         self.new_pos = next_position
                         if self.__current_pos[0] < next_position[0]:
@@ -85,8 +88,6 @@ class Agent(Ball):
                         elif self.__current_pos[1] > next_position[1]:
                             self.move_up()
                         self.rect.x, self.rect.y = self.grid.check_move(self.get_current_pos(), self.new_pos, self)
-            # else:
-            #     self.build_house(self.__resources_limit)
                     
     def move_up(self):
         if self.__current_pos[1] > 0:

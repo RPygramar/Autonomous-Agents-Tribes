@@ -1,8 +1,8 @@
 from gui.house import House
 
 class House_Algo(House):
-    def __init__(self, screen, grid, current_pos, color, tribe : str = 'grey', storage : str = 0, storage_limit : int = 50):
-        super().__init__(screen, grid, current_pos, color)
+    def __init__(self, screen, grid, current_pos, color, tribe : str = 'grey', storage : str = 0, storage_limit : int = 50, area : int = 6):
+        super().__init__(screen, grid, current_pos, color, area)
         self.__current_pos = current_pos
         self.new_pos = current_pos
         self.screen = screen
@@ -75,10 +75,8 @@ class House_Algo(House):
 
     def heal_agent(self, agent):
         if self.get_storage() > 0 and agent.health < agent.get_full_health():
-            #print('healed', agent.health)
             agent.health += self.__storage
             self.__storage -= self.__storage
-            #print('storage', self.get_storage())
     
     def __repr__(self):
         return f'House - Tribe: {self.get_tribe()} \n Storage: {self.get_storage()} \n Position - x: {self.pixel_pos[0]} | y: {self.pixel_pos[1]}'

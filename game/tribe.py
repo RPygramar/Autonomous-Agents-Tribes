@@ -1,25 +1,9 @@
-from threading import Event, Thread
-import time
-import pygame
-import pygame_gui
-import asyncio
-from multiprocessing import Process
-import queue
-
 class Tribe:
-    # def __init__(self, color : tuple, tribe_name : str, tribe_agents : list = [], tribe_houses : list = []) -> None:
-    #     self.__tribe_agents = tribe_agents
-    #     self.__houses = tribe_houses
-    #     self.__tribe_name = tribe_name
-    #     self.__color = color
     def __init__(self, color: tuple, tribe_name: str) -> None:
         self.__tribe_agents = []
         self.__houses = []
         self.__tribe_name = tribe_name
         self.__color = color
-        # self.tribe_thread = None
-        # self.tribe_running = Event()
-        # self.q = queue.Queue()
 
     def get_tribe(self) -> list:
         return self.__tribe_agents
@@ -27,10 +11,18 @@ class Tribe:
     def get_color(self) -> tuple:
         return self.__color
     
+    def set_confidence(self, confidence):
+        for agent in self.get_tribe():
+            agent.set_confidence(confidence)
+    
+    def get_confidence_levels(self) -> float:
+        total_confidence = 0
+        for agent in self.get_tribe():
+            total_confidence += agent.get_confidence()
+        return total_confidence
+
     def add_agent(self, agent : object) -> None:
-        # print(agent)
         self.__tribe_agents.append(agent)
-        # print(self.__tribe_agents)
 
     def remove_agent(self, agent : object) -> None:
         for a in self.__tribe_agents:
@@ -61,20 +53,9 @@ class Tribe:
     def __worker(self,resource_list):
         while True:
             agent = self.q.get()
-            #print(f"[TRIBE] Agent {agent} created!")
             if agent is None:
                 break
             agent.run_agent(resource_list)
-            #agent.draw()
-            #print("Queue size:", self.q.qsize())
-            # self.q.task_done()
-
-    # def run_tribe(self, resources_list) -> None:
-    #     t = Thread(target=self.__worker, args=(resources_list, ), daemon=True)
-    #     #print(f"[TRIBE] Tribe {self.get_tribe_name()} created!")
-    #     t.start()
-    #     for agent in self.__tribe_agents:
-    #         self.q.put(agent)
     
     def check_enemy_in_territory(self, enemies):
         for house in self.get_houses():    
@@ -119,15 +100,6 @@ class Tribe:
                         enemy_agent.take_damage(agent.attack_power)
                 agent.draw()
         self.check_enemy_in_territory(enemy_agents_list)
-
-        # self.q.join()
-        # self.q.put(None)
-    
-    # def run_tribe(self, resources_list) -> None:
-    #     for agent in self.__tribe_agents:
-    #         agent.run_agent(resources_list)
-    #         agent.draw()
-
 
     def __repr__(self):
         return f'Tribo: {self.__tribe_name} - \n {self.get_tribe()} \n {self.get_houses()}'

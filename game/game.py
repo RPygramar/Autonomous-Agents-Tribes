@@ -29,6 +29,14 @@ class Game:
         self.queue_resources_tribe_orange = Queue()
         self.queue_resources_tribe_purple = Queue()
         self.queue_resources_tribe_red = Queue()
+        self.queue_confidence_blue = Queue()
+        self.queue_confidence_orange = Queue()
+        self.queue_confidence_purple = Queue()
+        self.queue_confidence_red = Queue()
+        self.queue_houses_blue = Queue()
+        self.queue_houses_orange = Queue()
+        self.queue_houses_purple = Queue()
+        self.queue_houses_red = Queue()
 
         self.grid = Grid(self.gui)
         self.grid.load_map()
@@ -50,16 +58,28 @@ class Game:
         self.all_agents_list = []
 
         # Default Values
-        self.total_resources = 2000
+        #-Tribe 
         self.agents_per_tribe = 2
-        self.regeneration_time = 2000
         self.initial_n_tribes = 2
+        #-Agents
+        self.agents_start_health = 100
+        self.agents_start_damage = 10
+        #-Resources
+        self.total_resources = 2000
+        self.regeneration_time = 2000
+        #-Houses
         self.house_price = 10
+        self.house_maximum_storage = 50
+        self.house_health = 100
+        self.house_area = 6
+
+
         self.tribes = {'blue': Tribe(tribe_name='blue', color=(30, 144, 255)),
                        'orange': Tribe(tribe_name='orange', color=(245, 130, 49)),
                        'purple': Tribe(tribe_name='purple', color=(199, 21, 133)),
                        'red': Tribe(tribe_name='red', color=(230, 25, 75))
                        }
+        
         self.selected_tribes = {}
 
         self.time = pygame.time.get_ticks()
@@ -69,7 +89,15 @@ class Game:
                                                    self.queue_resources_tribe_blue,
                                                     self.queue_resources_tribe_orange,
                                                     self.queue_resources_tribe_purple,
-                                                    self.queue_resources_tribe_red,))
+                                                    self.queue_resources_tribe_red,
+                                                    self.queue_confidence_blue,
+                                                    self.queue_confidence_orange,
+                                                    self.queue_confidence_purple,
+                                                    self.queue_confidence_red,
+                                                    self.queue_houses_blue,
+                                                    self.queue_houses_orange,
+                                                    self.queue_houses_purple,
+                                                    self.queue_houses_red))
         self.p.start()
 
 
@@ -97,6 +125,14 @@ class Game:
                 self.queue_resources_tribe_orange.put(self.tribes['orange'].get_total_resources())
                 self.queue_resources_tribe_purple.put(self.tribes['purple'].get_total_resources())
                 self.queue_resources_tribe_red.put(self.tribes['red'].get_total_resources())
+                self.queue_confidence_blue.put(self.tribes['blue'].get_confidence_levels())
+                self.queue_confidence_orange.put(self.tribes['orange'].get_confidence_levels())
+                self.queue_confidence_purple.put(self.tribes['purple'].get_confidence_levels())
+                self.queue_confidence_red.put(self.tribes['red'].get_confidence_levels())
+                self.queue_houses_blue.put(len(self.tribes['blue'].get_houses()))
+                self.queue_houses_orange.put(len(self.tribes['orange'].get_houses()))
+                self.queue_houses_purple.put(len(self.tribes['purple'].get_houses()))
+                self.queue_houses_red.put(len(self.tribes['red'].get_houses()))
 
 
             # Screen do Main Menu
@@ -226,8 +262,10 @@ class Game:
                         if event.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                             if event.ui_element == self.gui.agents_health_slider:
                                 self.gui.value_agents_health.set_text(f"HP: {event.value:.0f}")
+                                self.agents_start_health = int(event.value)
                             if event.ui_element == self.gui.agents_attack_slider:
                                 self.gui.value_agents_attack.set_text(f"Attack: {event.value:.0f}")
+                                self.agents_start_damage = int(event.value)
             # RESOURCES MENU
             elif self.mode == 5:
                 self.gui.get_screen().fill((49, 54, 63))
@@ -277,10 +315,13 @@ class Game:
                                 self.house_price = int(event.value)
                             elif event.ui_element == self.gui.houses_health_slider:
                                 self.gui.value_houses_health.set_text(f"HP: {event.value:.0f}")
+                                self.house_health = int(event.value)
                             elif event.ui_element == self.gui.slider_houses_territory_area:
                                 self.gui.value_houses_territory_area.set_text(f"AREA: {event.value:.0f}")
+                                self.house_area = int(event.value)
                             elif event.ui_element == self.gui.houses_max_storage_slider:
                                 self.gui.value_houses_max_storage.set_text(f"Storage: {event.value:.0f}")
+                                self.house_maximum_storage = int(event.value)
 
 
             # Display
@@ -322,7 +363,9 @@ class Game:
                     color=new_agent.get_color(),
                     radius=5,
                     tribe_name=new_agent.get_tribe(),
-                    resource_limit=self.house_price
+                    resource_limit=self.house_price,
+                    attack=self.agents_start_damage,
+                    health=self.agents_start_health
                 )
                 self.all_agents_list.append(a)
                 tribe.add_agent(a)
@@ -343,15 +386,10 @@ class Game:
 
     def on_build_house(self, agent : object):
         if agent.get_resources() >= self.house_price and not self.is_house_in_position(agent):
-            house = House(self.gui.get_screen(), self.grid, agent.get_current_pos(), agent.color, tribe= agent.get_tribe_name())
+            house = House(self.gui.get_screen(), self.grid, agent.get_current_pos(), agent.color, tribe= agent.get_tribe_name(),storage_limit=self.house_maximum_storage,area=self.house_area)
             self.all_houses_list.append(house)
             self.add_house_to_tribe(house.get_tribe(), house)
-            agent.set_resources(0)       
-
-            #print('CONSTRUI CASA EM: ', house.get_current_pos())
-            #return house, True
-        #else:
-        #    return collide_with_house[1], False
+            agent.set_resources(0)
 
     def on_put_in_house(self):
         for agent in self.all_agents_list:
@@ -359,6 +397,7 @@ class Game:
                 if agent.rect.colliderect(house.rect):
                     if agent.get_tribe_name() == house.get_tribe():
                         agent.trade_from_house(house.add_resources_to_storage(agent.get_resources()))
+                        break
 
     def on_grab_from_house(self):
         for agent in self.all_agents_list:
@@ -405,7 +444,9 @@ class Game:
                     color=tribe.get_color(),
                     radius=5,
                     tribe_name=tribe_name,
-                    resource_limit=self.house_price
+                    resource_limit=self.house_price,
+                    attack=self.agents_start_damage,
+                    health=self.agents_start_health
                 )
                 self.all_agents_list.append(agent)
                 tribe.add_agent(agent)

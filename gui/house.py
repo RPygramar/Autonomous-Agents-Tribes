@@ -3,7 +3,7 @@ import math
 
 
 class House:
-    def __init__(self, screen, grid, current_pos, color):
+    def __init__(self, screen, grid, current_pos, color, area):
         self.pixel_pos = (grid.get_cell_x(current_pos[0]), grid.get_cell_y(current_pos[1]))
         self.grid = grid
         self.screen = screen
@@ -17,9 +17,9 @@ class House:
                                (self.rect.x,self.rect.y+self.grid.get_cell_size()/2),          
                                 ((self.rect.x),self.rect.y+self.grid.get_cell_size())
                                 ]  
-        size = 6
+        self.size = area
 
-        self.territory_area = pygame.Rect(self.pixel_pos[0]-self.rectSize*size, self.pixel_pos[1]-self.rectSize*size, self.rectSize*(size*2+1), self.rectSize*(size*2+1))     
+        self.territory_area = pygame.Rect(self.pixel_pos[0]-self.rectSize*self.size, self.pixel_pos[1]-self.rectSize*self.size, self.rectSize*(self.size*2+1), self.rectSize*(self.size*2+1))     
 
     def update(self):
         pass
