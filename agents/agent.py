@@ -22,9 +22,6 @@ class Agent(Ball):
         self.__resources_limit = resource_limit
         self.__confidence = random.randint(0,20)
         self.virtual_confidence = 0
-        self.actions = {"movement": ['move_up', 'move_down', 'move_left', 'move_right','move_Astar(resources)'],
-                        "interaction": ['grab_from_house', 'put_from_house', 'build_house']
-                        }
         
         self.call_help = False
         # Callbacks
