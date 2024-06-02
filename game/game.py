@@ -59,14 +59,14 @@ class Game:
 
         # Default Values
         #-Tribe 
-        self.agents_per_tribe = 2
-        self.initial_n_tribes = 2
+        self.agents_per_tribe = 4
+        self.initial_n_tribes = 5
         #-Agents
         self.agents_start_health = 100
         self.agents_start_damage = 10
         #-Resources
-        self.total_resources = 2000
-        self.regeneration_time = 2000
+        self.total_resources = 4000
+        self.regeneration_time = 2 * 1000
         #-Houses
         self.house_price = 10
         self.house_maximum_storage = 50
@@ -496,14 +496,15 @@ class Game:
             pos = []
             for resource in self.resources:
                 pos.append(resource.current_pos)
-            for _ in range(100):
-                random_tuple = (random.randint(0,89),random.randint(0,89))
-                while random_tuple in pos:
+            if len(self.resources) + 100 < 8100:
+                for _ in range(100):
                     random_tuple = (random.randint(0,89),random.randint(0,89))
-                pos.append(random_tuple)
-                self.resources.append(Resource(self.gui.get_screen(), self.grid, random_tuple, color=(0,128,0)))
-                # print('Created new RESOURCE on: ',random_tuple)
-            del pos
+                    while random_tuple in pos:
+                        random_tuple = (random.randint(0,89),random.randint(0,89))
+                    pos.append(random_tuple)
+                    self.resources.append(Resource(self.gui.get_screen(), self.grid, random_tuple, color=(0,128,0)))
+                    # print('Created new RESOURCE on: ',random_tuple)
+                del pos
     
     def house_alive(self):
         for house in self.all_houses_list:

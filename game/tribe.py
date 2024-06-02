@@ -19,6 +19,8 @@ class Tribe:
         total_confidence = 0
         for agent in self.get_tribe():
             total_confidence += agent.get_confidence()
+        if self.get_tribe():
+            return (total_confidence / len(self.get_tribe()))
         return total_confidence
 
     def add_agent(self, agent : object) -> None:
