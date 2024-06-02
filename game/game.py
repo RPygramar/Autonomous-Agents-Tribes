@@ -59,8 +59,8 @@ class Game:
 
         # Default Values
         #-Tribe 
-        self.agents_per_tribe = 4
-        self.initial_n_tribes = 5
+        self.agents_per_tribe = 5
+        self.initial_n_tribes = 4
         self.confidence_tribe = 0
         #-Agents
         self.agents_start_health = 100
