@@ -236,7 +236,7 @@ class GUI:
 
         self.slider_confidence_tribe_label = pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect((self.get_screen_width() // 3, self.get_screen_height() // 3 + 50), (300, 20)),
-            text="Confidence igual for every agent of the tribe",
+            text="Equal Confidence for every agent of the tribe",
             manager=self.__manager
         )
 
