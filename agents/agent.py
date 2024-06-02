@@ -225,7 +225,7 @@ class Agent(Ball):
             if house:
                 self.move_Astar([house])
                 self.put_in_house(house)
-            else:
+            else: # 4
                 self.build_house(self.__resources_limit)
 
     def set_on_build_house_callback(self, callback):

@@ -44,15 +44,18 @@ class Plot:
         
         # Add a legend to the line plot
         self.ax1.legend()
+        self.ax1.set_title("Total Resources per Tribe")
 
         # Initialize the bar plot for the confidence values
         self.ax2.set_xlabel("Tribes")
         self.ax2.set_ylabel("Confidence Values")
-        self.ax2.set_title("Current Total Confidence Values of Tribes")
+        self.ax2.set_title("Average Total Confidence Values of Tribes")
 
         # Set the labels for x and y axes of the house plot
         self.ax3.set_xlabel("Time (seconds)")
         self.ax3.set_ylabel("House Values")
+        self.ax3.set_title("Nº of houses per Tribe")
+
         
         # Initialize lines for all sets of house values
         self.tribe_blue_houses_line, = self.ax3.plot(self.x_values, self.blue_tribe_houses_list, label="Tribe Blue", color='blue')
@@ -203,11 +206,6 @@ class Plot:
         
         # Create the bar plot
         self.ax2.bar(tribes, resources, color=['blue', 'orange', 'purple', 'red'])
-        
-        # Set the labels for the bar plot
-        self.ax2.set_xlabel("Tribes")
-        self.ax2.set_ylabel("Confidence Values")
-        self.ax2.set_title("Current Total Confidence Values of Tribes")
 
     def update_second_line_plot(self):
         pass
