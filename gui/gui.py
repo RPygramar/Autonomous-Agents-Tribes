@@ -46,6 +46,7 @@ class GUI:
     def create_tribe_menu(self):
         self.__draw_slider_number_tribes()
         self.__draw_initial_agents_slider()
+        self.__draw_confidence_tribe_slider()
         self.__draw_back_button()
 
     def create_agents_menu(self):
@@ -80,6 +81,9 @@ class GUI:
         self.tribes_number_slider_label.kill()
         self.tribes_number_slider.kill()
         self.value_number_tribes.kill()
+        self.confidence_tribe_slider.kill()
+        self.slider_confidence_tribe_label.kill()
+        self.value_confidence_tribe.kill()
         self.back_button.kill()
 
     def destroy_agents_menu(self):
@@ -182,7 +186,8 @@ class GUI:
     
     # TRIBE SLIDER
     def __draw_slider_number_tribes(self):
-        self.tribes_number_slider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect(((self.get_screen_width()//3),(self.get_screen_height()//3)-100),(300, 20)),
+        self.tribes_number_slider = pygame_gui.elements.UIHorizontalSlider(
+            relative_rect=pygame.Rect(((self.get_screen_width()//3),(self.get_screen_height()//3)-100),(300, 20)),
                                                value_range=(1,4),
                                                start_value=2,
                                                manager=self.__manager
@@ -202,7 +207,8 @@ class GUI:
 
     # INITIAL AGENTS PER TRIBE AGENTS
     def __draw_initial_agents_slider(self):
-        self.initial_agents_slider = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect(((self.get_screen_width()//3),(self.get_screen_height()//3)),(300, 20)),
+        self.initial_agents_slider = pygame_gui.elements.UIHorizontalSlider(
+            relative_rect=pygame.Rect(((self.get_screen_width()//3),(self.get_screen_height()//3)),(300, 20)),
                                                value_range=(2,8),
                                                start_value=2,
                                                manager=self.__manager
@@ -217,6 +223,27 @@ class GUI:
         self.value_initial_agents = pygame_gui.elements.UILabel(
             relative_rect=pygame.Rect((self.get_screen_width() // 3 + 25 + 300 + 10, self.get_screen_height() // 3), (100, 20)),
             text=f"Value: {self.initial_agents_slider.current_value}",  # Initial text
+            manager=self.__manager
+        )
+
+    def __draw_confidence_tribe_slider(self):
+        self.confidence_tribe_slider = pygame_gui.elements.UIHorizontalSlider(
+            relative_rect=pygame.Rect(((self.get_screen_width() // 3), (self.get_screen_height() // 3)+100), (300, 20)),
+            value_range=(0, 1),
+            start_value=0,
+            manager=self.__manager
+            )
+
+        self.slider_confidence_tribe_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.get_screen_width() // 3, self.get_screen_height() // 3 + 50), (300, 20)),
+            text="Confidence igual for every agent of the tribe",
+            manager=self.__manager
+        )
+
+        self.value_confidence_tribe = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.get_screen_width() // 3 + 25 + 300 + 10, self.get_screen_height() // 3+100),
+                                      (100, 20)),
+            text=f"Value: {self.confidence_tribe_slider.current_value}",  # Initial text
             manager=self.__manager
         )
 

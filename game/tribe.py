@@ -4,6 +4,7 @@ class Tribe:
         self.__houses = []
         self.__tribe_name = tribe_name
         self.__color = color
+        self.__confidence = 0
 
     def get_tribe(self) -> list:
         return self.__tribe_agents
@@ -12,8 +13,13 @@ class Tribe:
         return self.__color
     
     def set_confidence(self, confidence):
+        self.__confidence = confidence
+        print(self.__tribe_name,self.__confidence)
         for agent in self.get_tribe():
             agent.set_confidence(confidence)
+
+    def get_confidence(self) -> float:
+        return self.__confidence
     
     def get_confidence_levels(self) -> float:
         total_confidence = 0

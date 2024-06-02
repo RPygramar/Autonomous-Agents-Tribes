@@ -61,6 +61,7 @@ class Game:
         #-Tribe 
         self.agents_per_tribe = 2
         self.initial_n_tribes = 2
+        self.confidence_tribe = 0
         #-Agents
         self.agents_start_health = 100
         self.agents_start_damage = 10
@@ -231,6 +232,9 @@ class Game:
                             elif event.ui_element == self.gui.initial_agents_slider:
                                 self.gui.value_initial_agents.set_text(f"Value: {event.value:.0f}")
                                 self.agents_per_tribe = int(event.value)
+                            elif event.ui_element == self.gui.confidence_tribe_slider:
+                                self.gui.value_confidence_tribe.set_text(f"Value: {event.value:.0f}")
+                                self.confidence_tribe = int(event.value)
                         if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                             if event.ui_element == self.gui.back_button:
                                 self.mode = 1
@@ -372,6 +376,8 @@ class Game:
                 a.set_on_build_house_callback(self.on_build_house)
                 a.set_on_grab_from_house(self.on_grab_from_house)
                 a.set_on_put_in_house(self.on_put_in_house)
+                if self.confidence_tribe == 1:
+                    a.set_confidence(tribe.get_confidence())
                 #print(tribe.get_tribe())
 
         self.check_collisions()
@@ -450,6 +456,8 @@ class Game:
                 )
                 self.all_agents_list.append(agent)
                 tribe.add_agent(agent)
+            if self.confidence_tribe == 1:
+                tribe.set_confidence(random.randint(0,20))
 
         # HOUSE CREATE
 
